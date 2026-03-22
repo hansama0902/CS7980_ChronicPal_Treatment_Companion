@@ -10,4 +10,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Models will be defined here
+enum TreatmentType {
+  INFUSION
+  MEDICATION
+  CLINIC_VISIT
+}
+
+model User {
+  id           String           @id @default(cuid())
+  email        String           @unique
+  passwordHash String
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  treatments   TreatmentEntry[]
+}
+
+model TreatmentEntry {
+  id            String        @id @default(cuid())
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date          DateTime
+  type          TreatmentType
+  uricAcidLevel Float?        // mg/dL; optional — not every session includes a lab draw
+  painScore     Int?          // 0–10; optional
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([userId, date])
+}
