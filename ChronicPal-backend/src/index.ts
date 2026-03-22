@@ -4,6 +4,7 @@ import 'dotenv/config';
 import express, { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import authRouter from './routes/auth';
+import labsRouter from './routes/labs';
 import treatmentsRouter from './routes/treatments';
 import { AppError } from './utils/errors';
 import { logger } from './utils/logger';
@@ -29,6 +30,7 @@ app.get('/health', (_req: Request, res: Response) => {
 // API routes
 app.use('/api/auth', authRouter);
 app.use('/api/treatments', treatmentsRouter);
+app.use('/api/labs', labsRouter);
 
 // Global error handler
 app.use((err: unknown, req: Request, res: Response, _next: NextFunction): void => {

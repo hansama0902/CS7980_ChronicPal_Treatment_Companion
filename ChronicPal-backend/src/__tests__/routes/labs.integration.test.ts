@@ -15,14 +15,16 @@ vi.mock('../../prisma/client', () => ({
   },
 }));
 
-// Mock JWT verification so tests don't need real tokens
+// Mock JWT verification so tests don't need real tokens.
+// Must override `default` for ESM interop — auth.ts uses `import jwt from 'jsonwebtoken'`.
 vi.mock('jsonwebtoken', async (importOriginal) => {
   const actual = await importOriginal<typeof import('jsonwebtoken')>();
-  return {
+  const mocked = {
     ...actual,
     verify: vi.fn().mockReturnValue({ sub: 'user-1', email: 'test@example.com' }),
     sign: vi.fn().mockReturnValue('mock-token'),
   };
+  return { ...mocked, default: mocked };
 });
 
 import prisma from '../../prisma/client';

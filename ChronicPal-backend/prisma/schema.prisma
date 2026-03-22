@@ -23,6 +23,20 @@ model User {
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
   treatments   TreatmentEntry[]
+  labs         LabResult[]
+}
+
+model LabResult {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date          DateTime
+  uricAcidLevel Float    // mg/dL; required for lab entries
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId, date])
 }
 
 model TreatmentEntry {
