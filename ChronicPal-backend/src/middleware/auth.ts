@@ -15,13 +15,15 @@ export const authMiddleware: RequestHandler = (
 ): void => {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {
-    return next(new UnauthorizedError('Missing or malformed Authorization header'));
+    next(new UnauthorizedError('Missing or malformed Authorization header'));
+    return;
   }
 
   const token = authHeader.slice(7);
   const secret = process.env.JWT_SECRET;
   if (!secret) {
-    return next(new UnauthorizedError('Server misconfiguration: JWT_SECRET not set'));
+    next(new UnauthorizedError('Server misconfiguration: JWT_SECRET not set'));
+    return;
   }
 
   try {

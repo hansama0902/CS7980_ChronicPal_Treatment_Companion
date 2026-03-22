@@ -27,8 +27,18 @@ function sanitizeMeta(meta: Record<string, unknown>): Record<string, unknown> {
 const { combine, timestamp, json, errors } = winston.format;
 
 const sanitizeFormat = winston.format((info) => {
-  const { level, message, timestamp: ts, stack, ...meta } = info;
-  return { level, message, timestamp: ts, stack, ...sanitizeMeta(meta as Record<string, unknown>) };
+  // Destructure known safe top-level fields; sanitize everything else.
+  // `stack` is set by the errors() format on Error objects — preserve it.
+  const { level, message, timestamp: ts, stack, ...meta } = info as Record<string, unknown> & {
+    level: string;
+    message: string;
+    timestamp?: string;
+    stack?: string;
+  };
+  const sanitized: Record<string, unknown> = { level, message };
+  if (ts !== undefined) sanitized.timestamp = ts;
+  if (stack !== undefined) sanitized.stack = stack;
+  return { ...sanitized, ...sanitizeMeta(meta) };
 });
 
 export const logger = winston.createLogger({

@@ -42,9 +42,13 @@ app.use((err: unknown, req: Request, res: Response, _next: NextFunction): void =
   res.status(500).json({ success: false, error: 'Internal server error' });
 });
 
-const PORT = process.env.PORT ?? 3001;
-app.listen(PORT, () => {
-  logger.info('Server started', { statusCode: 200 });
-});
-
 export default app;
+
+// Only start listening when this file is the process entry point.
+// Importing `app` in tests must NOT start a server (would cause port conflicts).
+if (require.main === module) {
+  const PORT = process.env.PORT ?? 3001;
+  app.listen(PORT, () => {
+    logger.info('Server started', { statusCode: 200 });
+  });
+}
