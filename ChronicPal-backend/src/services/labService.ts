@@ -1,6 +1,9 @@
 import prisma from '../prisma/client';
 import { ICreateLabDto, ILabQuery, ILabResult } from '../types/lab';
 
+/**
+ * Maps a Prisma LabResult record to the domain ILabResult interface.
+ */
 function toLabResult(record: {
   id: string;
   userId: string;
