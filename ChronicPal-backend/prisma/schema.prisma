@@ -24,6 +24,7 @@ model User {
   updatedAt    DateTime         @updatedAt
   treatments   TreatmentEntry[]
   labs         LabResult[]
+  symptoms     SymptomEntry[]
 }
 
 model LabResult {
@@ -35,6 +36,20 @@ model LabResult {
   notes         String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  @@index([userId, date])
+}
+
+model SymptomEntry {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date        DateTime
+  symptomType String
+  severity    Int      // 1–10
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([userId, date])
 }

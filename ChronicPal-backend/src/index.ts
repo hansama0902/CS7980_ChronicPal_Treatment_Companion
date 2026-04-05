@@ -5,6 +5,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import authRouter from './routes/auth';
 import labsRouter from './routes/labs';
+import symptomsRouter from './routes/symptoms';
 import treatmentsRouter from './routes/treatments';
 import { AppError } from './utils/errors';
 import { logger } from './utils/logger';
@@ -31,6 +32,7 @@ app.get('/health', (_req: Request, res: Response) => {
 app.use('/api/auth', authRouter);
 app.use('/api/treatments', treatmentsRouter);
 app.use('/api/labs', labsRouter);
+app.use('/api/symptoms', symptomsRouter);
 
 // Global error handler
 app.use((err: unknown, req: Request, res: Response, _next: NextFunction): void => {
