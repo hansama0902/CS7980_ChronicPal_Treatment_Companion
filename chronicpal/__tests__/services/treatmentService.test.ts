@@ -21,7 +21,7 @@ vi.mock('@/lib/prisma', () => ({
 
 import { prisma } from '@/lib/prisma';
 
-const mockPrisma = prisma as {
+const mockPrisma = prisma as unknown as {
   treatmentEntry: {
     create: ReturnType<typeof vi.fn>;
     findMany: ReturnType<typeof vi.fn>;
