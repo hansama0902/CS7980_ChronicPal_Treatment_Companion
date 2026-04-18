@@ -1,0 +1,70 @@
+// This is your Prisma schema file.
+// Run `npx prisma generate` after any changes.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TreatmentType {
+  INFUSION
+  MEDICATION
+  CLINIC_VISIT
+}
+
+model User {
+  id           String           @id @default(cuid())
+  email        String           @unique
+  passwordHash String
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  treatments   TreatmentEntry[]
+  labs         LabResult[]
+  symptoms     SymptomEntry[]
+}
+
+model LabResult {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date          DateTime
+  uricAcidLevel Float    // mg/dL; required for lab entries
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId, date])
+}
+
+model SymptomEntry {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date        DateTime
+  symptomType String
+  severity    Int      // 1–10
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId, date])
+}
+
+model TreatmentEntry {
+  id            String        @id @default(cuid())
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date          DateTime
+  type          TreatmentType
+  uricAcidLevel Float?        // mg/dL; optional — not every session includes a lab draw
+  painScore     Int?          // 0–10; optional
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([userId, date])
+}
