@@ -60,29 +60,42 @@ A clinician or pharmacist who wants a concise, data-driven patient summary befor
 - **Privacy**: Users own their data; data export available; no third-party data sharing
 - **Reliability**: 99.5% uptime target for API
 
+## Architecture
+
+| Concern | Decision |
+|---------|----------|
+| Framework | Next.js 15 — App Router (single monorepo, no separate backend service) |
+| Auth | NextAuth v5 (Credentials provider, JWT session) |
+| Database | PostgreSQL via Supabase, accessed exclusively through Prisma ORM |
+| Deployment | Vercel — preview deploys on PR, production deploy on merge to main |
+
 ## API Design Summary
+
+All endpoints are Next.js Route Handlers under `app/api/`.
 
 ### REST Endpoints
 | Method | Path | Description |
 |--------|------|-------------|
 | POST | /api/auth/register | User registration |
-| POST | /api/auth/login | User login (JWT) |
-| GET | /api/treatments | List treatment entries |
+| POST | /api/auth/[...nextauth] | NextAuth sign-in / sign-out / session |
+| GET | /api/treatments | List treatment entries (auth required) |
 | POST | /api/treatments | Create treatment entry |
-| PUT | /api/treatments/:id | Update treatment entry |
-| DELETE | /api/treatments/:id | Delete treatment entry |
+| PUT | /api/treatments/[id] | Update treatment entry |
+| DELETE | /api/treatments/[id] | Delete treatment entry |
 | GET | /api/labs | List lab results |
 | POST | /api/labs | Log lab result |
+| GET | /api/symptoms | List symptom entries |
+| POST | /api/symptoms | Log symptom entry |
+| DELETE | /api/symptoms/[id] | Delete symptom entry |
 | GET | /api/diet | List diet entries |
 | POST | /api/diet | Log meal with AI analysis |
-| POST | /api/diet/analyze-image | Analyze meal image |
-| GET | /api/summary/pre-visit | Generate pre-visit summary |
+| POST | /api/diet/analyze-image | Analyze meal image (Claude vision) |
+| GET | /api/summary | Generate pre-visit summary |
 | POST | /api/share | Generate caregiver share link |
-| GET | /api/share/:token | Access shared dashboard |
-| GET | /api/trends/:metric | Get trend data for charts |
+| GET | /api/share/[token] | Access shared dashboard (no auth) |
 
 ### AI Integration Points
-- `POST /api/diet` — purine risk scoring via Claude API
+All Claude API calls are server-side only (Route Handlers / Server Actions):
+- `POST /api/diet` — purine risk scoring
 - `POST /api/diet/analyze-image` — meal image analysis via Claude vision
-- `GET /api/summary/pre-visit` — narrative summary generation via Claude API
-- `GET /api/trends/predict` — flare-up risk prediction (future)
+- `GET /api/summary` — narrative pre-visit summary generation
