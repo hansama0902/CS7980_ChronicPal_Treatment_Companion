@@ -10,7 +10,9 @@ import { dateRangeQuerySchema, isoDatetimeField, notesField } from './shared';
 
 export const CreateTreatmentSchema = z.object({
   date: isoDatetimeField('date'),
-  type: z.nativeEnum(TreatmentType, { message: 'type must be INFUSION, MEDICATION, or CLINIC_VISIT' }),
+  type: z.nativeEnum(TreatmentType, {
+    message: 'type must be INFUSION, MEDICATION, or CLINIC_VISIT',
+  }),
   uricAcidLevel: z
     .number()
     .min(MIN_URIC_ACID_MGDL, { message: `uricAcidLevel must be ≥ ${MIN_URIC_ACID_MGDL} mg/dL` })

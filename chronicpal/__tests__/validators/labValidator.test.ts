@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  CreateLabSchema,
-  LabQuerySchema,
-} from '@/validators/labValidator';
+import { CreateLabSchema, LabQuerySchema } from '@/validators/labValidator';
 
 const VALID_DATE = '2026-03-22T10:00:00.000Z';
 

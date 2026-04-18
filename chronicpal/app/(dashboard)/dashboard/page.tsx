@@ -5,9 +5,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold text-gray-900">
-        Welcome back, {session?.user?.email}
-      </h1>
+      <h1 className="text-2xl font-semibold text-gray-900">Welcome back, {session?.user?.email}</h1>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {['Labs', 'Treatments', 'Symptoms'].map((name) => (
           <a

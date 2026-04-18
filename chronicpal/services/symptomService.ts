@@ -51,10 +51,7 @@ export async function createSymptom(
  * Returns all symptom entries for a user, ordered by date descending.
  * Optionally filtered by date range.
  */
-export async function getSymptoms(
-  userId: string,
-  query: DateRangeQuery,
-): Promise<ISymptomEntry[]> {
+export async function getSymptoms(userId: string, query: DateRangeQuery): Promise<ISymptomEntry[]> {
   const records = await prisma.symptomEntry.findMany({
     where: {
       userId,

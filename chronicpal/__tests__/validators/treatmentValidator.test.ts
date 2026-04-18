@@ -34,7 +34,10 @@ describe('CreateTreatmentSchema', () => {
   });
 
   it('rejects an invalid date string', () => {
-    const result = CreateTreatmentSchema.safeParse({ date: 'not-a-date', type: TreatmentType.INFUSION });
+    const result = CreateTreatmentSchema.safeParse({
+      date: 'not-a-date',
+      type: TreatmentType.INFUSION,
+    });
     expect(result.success).toBe(false);
   });
 
