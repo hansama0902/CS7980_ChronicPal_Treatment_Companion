@@ -19,14 +19,16 @@ ChronicPal helps patients undergoing recurring therapies (e.g., gout infusion tr
 
 | Layer | Choice |
 |-------|--------|
-| Frontend | React 18 + TypeScript, Vite, Tailwind CSS, Recharts, React Router v6 — Vercel |
-| Backend | Node.js 20, Express.js + TypeScript, Prisma ORM, PostgreSQL via Supabase — Railway |
-| Auth | JWT (access 15min / refresh 7d), bcrypt, httpOnly cookies |
-| AI | Anthropic Claude API (`claude-sonnet-4-20250514`) — backend only |
-| Testing | Vitest + React Testing Library + Playwright; coverage ≥ 80% |
-| Tooling | ESLint, Prettier (2-space, single quotes, trailing commas), Husky + lint-staged, npm |
+| Framework | Next.js 15 (App Router), React 19, TypeScript 5 — Vercel |
+| Styling | Tailwind CSS 4, PostCSS |
+| Auth | NextAuth v5 (Credentials provider, JWT session), bcryptjs, Zod validation |
+| Database | PostgreSQL (Supabase), Prisma ORM 6 |
+| AI | Anthropic Claude API (`claude-sonnet-4-5`) — server-side only (Route Handlers / Server Actions) |
+| Logging | Winston 3 (structured, PHI-safe allowlist) |
+| Testing | Vitest 3 + React Testing Library + Playwright; coverage ≥ 70% |
+| Tooling | ESLint, Prettier (2-space, single quotes, trailing commas), npm |
 
-Two separate repos: `ChronicPal-frontend` and `ChronicPal-backend`.
+**Monorepo layout** (`/chronicpal` is the primary app; `/ChronicPal-backend` and `/ChronicPal-frontend` are legacy and kept for reference only).
 
 ---
 
@@ -41,17 +43,16 @@ Two separate repos: `ChronicPal-frontend` and `ChronicPal-backend`.
 
 ## Common Commands
 
-```bash
-# Frontend
-npm run dev          # start Vite dev server
-npm run build        # production build
-npm run test         # Vitest
-npm run lint         # ESLint
+All commands run from the `/chronicpal` directory.
 
-# Backend
-npm run dev          # ts-node-dev watch
-npm run build        # tsc
-npm run test         # Vitest
+```bash
+npm run dev               # Next.js dev server (localhost:3000)
+npm run build             # production build (tsc + next build)
+npm run test              # Vitest unit/integration
+npm run test:e2e          # Playwright E2E
+npm run lint              # ESLint
+npm run typecheck         # tsc --noEmit
+
 npx prisma migrate dev    # apply migrations (dev)
 npx prisma generate       # regenerate client after schema change
 npx prisma studio         # GUI for DB inspection
@@ -59,13 +60,15 @@ npx prisma studio         # GUI for DB inspection
 
 ---
 
-## Backend Patterns
+## Architecture Patterns (Next.js App Router)
 
-- Route handlers are thin — delegate to service layer
-- All async routes wrapped with `asyncHandler`
-- Validate all input with Zod in `src/middleware/validators/`
+- **Route Handlers** live in `chronicpal/app/api/**` — keep them thin, delegate to `services/`
+- **Server Actions** for form mutations; Route Handlers for REST endpoints consumed by client components
+- Validate all input with Zod schemas in `chronicpal/validators/`
 - Response shape: `{ success: boolean, data?: T, error?: string }`
-- Keep AI prompts in `src/services/prompts/`
+- Keep AI prompts in `chronicpal/services/prompts/`
+- Auth guard via `chronicpal/lib/routeAuth.ts` — wrap every protected Route Handler
+- Prisma client singleton in `chronicpal/lib/prisma.ts` — never instantiate elsewhere
 - Run `npx prisma generate` after every schema change
 
 ---
@@ -83,7 +86,8 @@ npx prisma studio         # GUI for DB inspection
 - **NEVER** use Supabase client SDK — all DB access goes through Prisma
 
 ### Auth (ADR-3)
-- **NEVER** store JWT tokens in localStorage — httpOnly cookies only
+- **NEVER** store session tokens in localStorage — NextAuth manages httpOnly cookies
+- Use `auth()` from `chronicpal/auth.ts` for session checks in Server Components / Route Handlers
 
 ### Other
 - **NEVER** commit `.env` — only `.env.example` with placeholders
