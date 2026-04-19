@@ -1,10 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { NextRequest, NextResponse } from 'next/server';
 
 vi.mock('@/lib/routeAuth', () => ({
-  withAuth: (handler: any) => async (req: any, ctx?: any) => {
-    const params = ctx?.params ? await ctx.params : {};
-    return handler('test-user-id', req, params);
-  },
+  withAuth:
+    (
+      handler: (
+        userId: string,
+        req: NextRequest,
+        params: Record<string, string>,
+      ) => Promise<NextResponse>,
+    ) =>
+    async (
+      req: NextRequest,
+      ctx?: { params?: Promise<Record<string, string>> },
+    ): Promise<NextResponse> => {
+      const params = ctx?.params ? await ctx.params : {};
+      return handler('test-user-id', req, params);
+    },
 }));
 
 vi.mock('@/services/symptomService', () => ({
@@ -12,6 +24,7 @@ vi.mock('@/services/symptomService', () => ({
   deleteSymptom: vi.fn(),
 }));
 
+import { NextRequest as NR } from 'next/server';
 import { updateSymptom, deleteSymptom } from '@/services/symptomService';
 import { DELETE, PUT } from '@/app/api/symptoms/[id]/route';
 
@@ -37,13 +50,13 @@ beforeEach(() => {
 describe('PUT /api/symptoms/[id]', () => {
   it('returns 200 with updated symptom', async () => {
     mockUpdate.mockResolvedValue(mockSymptom);
-    const req = new Request('http://localhost/api/symptoms/s-1', {
+    const req = new NR('http://localhost/api/symptoms/s-1', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ severity: 7 }),
     });
 
-    const res = await PUT(req as any, { params: Promise.resolve({ id: 's-1' }) });
+    const res = await PUT(req, { params: Promise.resolve({ id: 's-1' }) });
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -52,13 +65,13 @@ describe('PUT /api/symptoms/[id]', () => {
   });
 
   it('returns 400 when body is invalid', async () => {
-    const req = new Request('http://localhost/api/symptoms/s-1', {
+    const req = new NR('http://localhost/api/symptoms/s-1', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ severity: 99 }),
     });
 
-    const res = await PUT(req as any, { params: Promise.resolve({ id: 's-1' }) });
+    const res = await PUT(req, { params: Promise.resolve({ id: 's-1' }) });
 
     expect(res.status).toBe(400);
     expect((await res.json()).success).toBe(false);
@@ -68,9 +81,9 @@ describe('PUT /api/symptoms/[id]', () => {
 describe('DELETE /api/symptoms/[id]', () => {
   it('returns 200 on successful deletion', async () => {
     mockDelete.mockResolvedValue(undefined);
-    const req = new Request('http://localhost/api/symptoms/s-1', { method: 'DELETE' });
+    const req = new NR('http://localhost/api/symptoms/s-1', { method: 'DELETE' });
 
-    const res = await DELETE(req as any, { params: Promise.resolve({ id: 's-1' }) });
+    const res = await DELETE(req, { params: Promise.resolve({ id: 's-1' }) });
 
     expect(res.status).toBe(200);
     expect((await res.json()).success).toBe(true);

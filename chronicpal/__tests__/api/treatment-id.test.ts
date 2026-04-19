@@ -1,10 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { NextRequest, NextResponse } from 'next/server';
 
 vi.mock('@/lib/routeAuth', () => ({
-  withAuth: (handler: any) => async (req: any, ctx?: any) => {
-    const params = ctx?.params ? await ctx.params : {};
-    return handler('test-user-id', req, params);
-  },
+  withAuth:
+    (
+      handler: (
+        userId: string,
+        req: NextRequest,
+        params: Record<string, string>,
+      ) => Promise<NextResponse>,
+    ) =>
+    async (
+      req: NextRequest,
+      ctx?: { params?: Promise<Record<string, string>> },
+    ): Promise<NextResponse> => {
+      const params = ctx?.params ? await ctx.params : {};
+      return handler('test-user-id', req, params);
+    },
 }));
 
 vi.mock('@/services/treatmentService', () => ({
@@ -12,6 +24,7 @@ vi.mock('@/services/treatmentService', () => ({
   deleteTreatment: vi.fn(),
 }));
 
+import { NextRequest as NR } from 'next/server';
 import { updateTreatment, deleteTreatment } from '@/services/treatmentService';
 import { DELETE, PUT } from '@/app/api/treatments/[id]/route';
 
@@ -38,13 +51,13 @@ beforeEach(() => {
 describe('PUT /api/treatments/[id]', () => {
   it('returns 200 with updated treatment', async () => {
     mockUpdate.mockResolvedValue(mockTreatment);
-    const req = new Request('http://localhost/api/treatments/t-1', {
+    const req = new NR('http://localhost/api/treatments/t-1', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ uricAcidLevel: 5.2 }),
     });
 
-    const res = await PUT(req as any, { params: Promise.resolve({ id: 't-1' }) });
+    const res = await PUT(req, { params: Promise.resolve({ id: 't-1' }) });
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -53,13 +66,13 @@ describe('PUT /api/treatments/[id]', () => {
   });
 
   it('returns 400 when body is invalid', async () => {
-    const req = new Request('http://localhost/api/treatments/t-1', {
+    const req = new NR('http://localhost/api/treatments/t-1', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'BadType' }),
     });
 
-    const res = await PUT(req as any, { params: Promise.resolve({ id: 't-1' }) });
+    const res = await PUT(req, { params: Promise.resolve({ id: 't-1' }) });
 
     expect(res.status).toBe(400);
     expect((await res.json()).success).toBe(false);
@@ -69,9 +82,9 @@ describe('PUT /api/treatments/[id]', () => {
 describe('DELETE /api/treatments/[id]', () => {
   it('returns 200 on successful deletion', async () => {
     mockDelete.mockResolvedValue(undefined);
-    const req = new Request('http://localhost/api/treatments/t-1', { method: 'DELETE' });
+    const req = new NR('http://localhost/api/treatments/t-1', { method: 'DELETE' });
 
-    const res = await DELETE(req as any, { params: Promise.resolve({ id: 't-1' }) });
+    const res = await DELETE(req, { params: Promise.resolve({ id: 't-1' }) });
 
     expect(res.status).toBe(200);
     expect((await res.json()).success).toBe(true);

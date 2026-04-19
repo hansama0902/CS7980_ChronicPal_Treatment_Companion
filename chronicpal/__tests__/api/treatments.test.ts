@@ -1,10 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { NextRequest, NextResponse } from 'next/server';
 
 vi.mock('@/lib/routeAuth', () => ({
-  withAuth: (handler: any) => async (req: any, ctx?: any) => {
-    const params = ctx?.params ? await ctx.params : {};
-    return handler('test-user-id', req, params);
-  },
+  withAuth:
+    (
+      handler: (
+        userId: string,
+        req: NextRequest,
+        params: Record<string, string>,
+      ) => Promise<NextResponse>,
+    ) =>
+    async (
+      req: NextRequest,
+      ctx?: { params?: Promise<Record<string, string>> },
+    ): Promise<NextResponse> => {
+      const params = ctx?.params ? await ctx.params : {};
+      return handler('test-user-id', req, params);
+    },
 }));
 
 vi.mock('@/services/treatmentService', () => ({
@@ -12,6 +24,7 @@ vi.mock('@/services/treatmentService', () => ({
   getTreatments: vi.fn(),
 }));
 
+import { NextRequest as NR } from 'next/server';
 import { createTreatment, getTreatments } from '@/services/treatmentService';
 import { GET, POST } from '@/app/api/treatments/route';
 
@@ -38,9 +51,9 @@ beforeEach(() => {
 describe('GET /api/treatments', () => {
   it('returns 200 with treatment list', async () => {
     mockGet.mockResolvedValue([mockTreatment]);
-    const req = new Request('http://localhost/api/treatments');
+    const req = new NR('http://localhost/api/treatments');
 
-    const res = await GET(req as any, { params: Promise.resolve({}) });
+    const res = await GET(req, { params: Promise.resolve({}) });
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -51,9 +64,9 @@ describe('GET /api/treatments', () => {
 
   it('passes date range query params to service', async () => {
     mockGet.mockResolvedValue([]);
-    const req = new Request(`http://localhost/api/treatments?from=${NOW}&to=${NOW}`);
+    const req = new NR(`http://localhost/api/treatments?from=${NOW}&to=${NOW}`);
 
-    await GET(req as any, { params: Promise.resolve({}) });
+    await GET(req, { params: Promise.resolve({}) });
 
     expect(mockGet).toHaveBeenCalledWith(
       'test-user-id',
@@ -62,9 +75,9 @@ describe('GET /api/treatments', () => {
   });
 
   it('returns 400 when query params fail validation', async () => {
-    const req = new Request('http://localhost/api/treatments?from=bad-date');
+    const req = new NR('http://localhost/api/treatments?from=bad-date');
 
-    const res = await GET(req as any, { params: Promise.resolve({}) });
+    const res = await GET(req, { params: Promise.resolve({}) });
 
     expect(res.status).toBe(400);
     expect((await res.json()).success).toBe(false);
@@ -74,13 +87,13 @@ describe('GET /api/treatments', () => {
 describe('POST /api/treatments', () => {
   it('returns 201 with created treatment', async () => {
     mockCreate.mockResolvedValue(mockTreatment);
-    const req = new Request('http://localhost/api/treatments', {
+    const req = new NR('http://localhost/api/treatments', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ date: NOW, type: 'INFUSION' }),
     });
 
-    const res = await POST(req as any, { params: Promise.resolve({}) });
+    const res = await POST(req, { params: Promise.resolve({}) });
 
     expect(res.status).toBe(201);
     const body = await res.json();
@@ -89,13 +102,13 @@ describe('POST /api/treatments', () => {
   });
 
   it('returns 400 when body fails validation', async () => {
-    const req = new Request('http://localhost/api/treatments', {
+    const req = new NR('http://localhost/api/treatments', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'InvalidType' }),
     });
 
-    const res = await POST(req as any, { params: Promise.resolve({}) });
+    const res = await POST(req, { params: Promise.resolve({}) });
 
     expect(res.status).toBe(400);
     expect((await res.json()).success).toBe(false);
