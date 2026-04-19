@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum TreatmentType {
@@ -16,15 +17,44 @@ enum TreatmentType {
   CLINIC_VISIT
 }
 
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+}
+
+enum PurineLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum LinkStatus {
+  PENDING
+  ACTIVE
+  REVOKED
+}
+
+enum UserRole {
+  PATIENT
+  CAREGIVER
+  ADVISOR
+}
+
 model User {
-  id           String           @id @default(cuid())
-  email        String           @unique
-  passwordHash String
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
-  treatments   TreatmentEntry[]
-  labs         LabResult[]
-  symptoms     SymptomEntry[]
+  id             String           @id @default(cuid())
+  email          String           @unique
+  passwordHash   String
+  role           UserRole         @default(PATIENT)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  treatments     TreatmentEntry[]
+  labs           LabResult[]
+  symptoms       SymptomEntry[]
+  dietEntries    DietEntry[]
+  caregiverLinks CaregiverLink[]  @relation("CaregiverLinks")
+  patientLinks   CaregiverLink[]  @relation("PatientLinks")
 }
 
 model LabResult {
@@ -67,4 +97,31 @@ model TreatmentEntry {
   updatedAt     DateTime      @updatedAt
 
   @@index([userId, date])
+}
+
+model DietEntry {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  meal        String
+  mealType    MealType
+  purineLevel PurineLevel
+  riskScore   Float?
+  aiAnalysis  String?     @db.Text
+  date        DateTime
+  createdAt   DateTime    @default(now())
+
+  @@index([userId, date])
+}
+
+model CaregiverLink {
+  id          String     @id @default(cuid())
+  caregiverId String
+  caregiver   User       @relation("CaregiverLinks", fields: [caregiverId], references: [id])
+  patientId   String
+  patient     User       @relation("PatientLinks", fields: [patientId], references: [id])
+  status      LinkStatus @default(PENDING)
+  createdAt   DateTime   @default(now())
+
+  @@unique([caregiverId, patientId])
 }
