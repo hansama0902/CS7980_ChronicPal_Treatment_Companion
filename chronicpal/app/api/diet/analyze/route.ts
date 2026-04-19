@@ -12,6 +12,11 @@ export const POST = withAuth(async (userId, req: NextRequest) => {
       { status: 400 },
     );
   }
-  const result = await analyzeDiet(userId, parsed.data.meal, parsed.data.mealType, parsed.data.date);
+  const result = await analyzeDiet(
+    userId,
+    parsed.data.meal,
+    parsed.data.mealType,
+    parsed.data.date,
+  );
   return NextResponse.json({ success: true, data: result });
 });

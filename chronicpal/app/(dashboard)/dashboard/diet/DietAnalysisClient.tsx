@@ -80,7 +80,11 @@ export default function DietAnalysisClient({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ meal, mealType, date: new Date().toISOString() }),
       });
-      const data = await res.json() as { success: boolean; data?: { analysis: AnalysisResult }; error?: string };
+      const data = (await res.json()) as {
+        success: boolean;
+        data?: { analysis: AnalysisResult };
+        error?: string;
+      };
       if (!data.success) {
         setError(data.error ?? 'Analysis failed');
       } else {

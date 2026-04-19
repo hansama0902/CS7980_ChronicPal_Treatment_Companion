@@ -5,7 +5,11 @@ const NOW = '2026-04-19T10:00:00.000Z';
 
 describe('CreateDietSchema', () => {
   it('accepts a valid diet entry', () => {
-    const result = CreateDietSchema.safeParse({ meal: 'Chicken breast with rice', mealType: 'LUNCH', date: NOW });
+    const result = CreateDietSchema.safeParse({
+      meal: 'Chicken breast with rice',
+      mealType: 'LUNCH',
+      date: NOW,
+    });
     expect(result.success).toBe(true);
   });
 
@@ -20,12 +24,20 @@ describe('CreateDietSchema', () => {
   });
 
   it('rejects meal exceeding max length', () => {
-    const result = CreateDietSchema.safeParse({ meal: 'a'.repeat(501), mealType: 'LUNCH', date: NOW });
+    const result = CreateDietSchema.safeParse({
+      meal: 'a'.repeat(501),
+      mealType: 'LUNCH',
+      date: NOW,
+    });
     expect(result.success).toBe(false);
   });
 
   it('accepts meal at exactly max length', () => {
-    const result = CreateDietSchema.safeParse({ meal: 'a'.repeat(500), mealType: 'LUNCH', date: NOW });
+    const result = CreateDietSchema.safeParse({
+      meal: 'a'.repeat(500),
+      mealType: 'LUNCH',
+      date: NOW,
+    });
     expect(result.success).toBe(true);
   });
 
@@ -41,7 +53,11 @@ describe('CreateDietSchema', () => {
   });
 
   it('rejects invalid date string', () => {
-    const result = CreateDietSchema.safeParse({ meal: 'Eggs', mealType: 'BREAKFAST', date: 'not-a-date' });
+    const result = CreateDietSchema.safeParse({
+      meal: 'Eggs',
+      mealType: 'BREAKFAST',
+      date: 'not-a-date',
+    });
     expect(result.success).toBe(false);
   });
 
@@ -53,7 +69,11 @@ describe('CreateDietSchema', () => {
 
 describe('AnalyzeDietSchema', () => {
   it('accepts same valid input as CreateDietSchema', () => {
-    const result = AnalyzeDietSchema.safeParse({ meal: 'Salmon fillet', mealType: 'DINNER', date: NOW });
+    const result = AnalyzeDietSchema.safeParse({
+      meal: 'Salmon fillet',
+      mealType: 'DINNER',
+      date: NOW,
+    });
     expect(result.success).toBe(true);
   });
 

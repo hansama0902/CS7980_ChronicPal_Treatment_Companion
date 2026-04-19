@@ -8,7 +8,10 @@ import { BadRequestError, TooManyRequestsError } from '@/lib/errors';
 const client = new Anthropic();
 
 function sanitizeMeal(meal: string): string {
-  return meal.replace(/[<>{}[\]\\]/g, '').trim().slice(0, 500);
+  return meal
+    .replace(/[<>{}[\]\\]/g, '')
+    .trim()
+    .slice(0, 500);
 }
 
 function parseDietAnalysisResponse(text: string): IDietAnalysisResult {

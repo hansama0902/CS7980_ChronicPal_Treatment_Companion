@@ -101,14 +101,18 @@ describe('analyzeDiet', () => {
 
   it('throws BadRequestError when riskLevel is not a valid enum value', async () => {
     mockMessagesCreate.mockResolvedValue({
-      content: [{ type: 'text', text: JSON.stringify({ ...VALID_ANALYSIS, riskLevel: 'EXTREME' }) }],
+      content: [
+        { type: 'text', text: JSON.stringify({ ...VALID_ANALYSIS, riskLevel: 'EXTREME' }) },
+      ],
     });
     await expect(analyzeDiet(USER_ID, 'Chicken', 'LUNCH', NOW)).rejects.toThrow();
   });
 
   it('throws BadRequestError when purineEstimate is not a number', async () => {
     mockMessagesCreate.mockResolvedValue({
-      content: [{ type: 'text', text: JSON.stringify({ ...VALID_ANALYSIS, purineEstimate: 'high' }) }],
+      content: [
+        { type: 'text', text: JSON.stringify({ ...VALID_ANALYSIS, purineEstimate: 'high' }) },
+      ],
     });
     await expect(analyzeDiet(USER_ID, 'Chicken', 'LUNCH', NOW)).rejects.toThrow();
   });
