@@ -104,8 +104,9 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://test:test@localhost:5432/chronicpal_test
-      NEXTAUTH_SECRET: ci-test-secret-32-chars-minimum!!
-      NEXTAUTH_URL: http://localhost:3000
+      AUTH_SECRET: ci-test-secret-32-chars-minimum!!
+      AUTH_URL: http://localhost:3000
+      AUTH_TRUST_HOST: 'true'
 
     steps:
       - uses: actions/checkout@v4
