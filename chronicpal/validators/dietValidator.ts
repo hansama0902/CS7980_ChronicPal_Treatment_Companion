@@ -15,7 +15,22 @@ export const CreateDietSchema = z.object({
   date: isoDatetimeField('date'),
 });
 
-export const AnalyzeDietSchema = CreateDietSchema;
+export const AnalyzeDietSchema = z
+  .object({
+    meal: z
+      .string()
+      .max(MAX_MEAL_DESCRIPTION_LENGTH, {
+        message: `meal must be ≤ ${MAX_MEAL_DESCRIPTION_LENGTH} characters`,
+      })
+      .optional(),
+    mealType: MealTypeEnum,
+    date: isoDatetimeField('date'),
+    imageBase64: z.string().optional(),
+    imageMimeType: z.enum(['image/jpeg', 'image/png', 'image/gif', 'image/webp']).optional(),
+  })
+  .refine((data) => (data.meal?.trim() ?? '') !== '' || data.imageBase64 !== undefined, {
+    message: 'Either a meal description or an image is required',
+  });
 
 export const DietQuerySchema = dateRangeQuerySchema;
 
