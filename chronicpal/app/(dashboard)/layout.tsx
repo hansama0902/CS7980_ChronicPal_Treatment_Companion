@@ -1,6 +1,16 @@
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { auth } from '@/auth';
 import { signOut } from '@/auth';
+
+const NAV_LINKS = [
+  { label: 'Overview', href: '/dashboard' },
+  { label: 'Labs', href: '/dashboard/labs' },
+  { label: 'Diet', href: '/dashboard/diet' },
+  { label: 'Treatments', href: '/dashboard/treatments' },
+  { label: 'Symptoms', href: '/dashboard/symptoms' },
+  { label: 'Summary', href: '/dashboard/summary' },
+];
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -9,9 +19,22 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
-        <span className="text-xl font-semibold text-gray-900">ChronicPal</span>
+        <div className="flex items-center gap-6">
+          <span className="text-xl font-semibold text-gray-900">ChronicPal</span>
+          <div className="hidden sm:flex items-center gap-1">
+            {NAV_LINKS.map(({ label, href }) => (
+              <Link
+                key={href}
+                href={href}
+                className="px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
+        </div>
         <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-600">{session.user?.email}</span>
+          <span className="text-sm text-gray-600 hidden sm:block">{session.user?.email}</span>
           <form
             action={async () => {
               'use server';
