@@ -64,10 +64,17 @@ test.describe('Auth flow', () => {
       await expect(page).toHaveURL(/\/dashboard/, { timeout: 10_000 });
     }
 
-    await expect(page.getByText(TEST_EMAIL)).toBeVisible();
+    // Use .first() — dashboard renders the email in both a heading and a nav span
+    await expect(page.getByText(TEST_EMAIL).first()).toBeVisible();
   });
 
   test('login with registered credentials → dashboard', async ({ page }) => {
+    // Register the user here so this test is self-contained across retries/workers
+    await page.request.post('/api/auth/register', {
+      data: { email: TEST_EMAIL, password: TEST_PASSWORD },
+    });
+    // 400 "Email already registered" is fine — user may exist from the previous test
+
     await page.goto('/login');
     await page.getByLabel('Email').fill(TEST_EMAIL);
     await page.getByLabel('Password').fill(TEST_PASSWORD);
