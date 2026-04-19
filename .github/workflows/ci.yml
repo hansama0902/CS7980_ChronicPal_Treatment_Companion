@@ -97,6 +97,39 @@ jobs:
             p/nodejs
             p/owasp-top-ten
 
+  # ── AI PR Review ──────────────────────────────────────────────────────────
+
+  ai-review:
+    name: AI PR Review (Claude)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Claude Code Review
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Review this PR using the CLEAR framework:
+            - C (Correctness): Are there bugs, logic errors, or edge cases?
+            - L (Legibility): Is the code readable with clear naming?
+            - E (Efficiency): Any performance concerns?
+            - A (Architecture): Does it follow project patterns (Next.js App Router, Prisma, Zod)?
+            - R (Reliability): Are there tests? Error handling? PHI safety?
+
+            Also check:
+            - No PHI logged in console or error messages
+            - AI calls only from backend (never client-side)
+            - Zod validation on all inputs
+            - Proper authorization checks
+
   # ── E2E (after quality gates pass) ────────────────────────────────────────
 
   e2e:
@@ -121,6 +154,7 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://test:test@localhost:5432/chronicpal_test
+      DIRECT_URL: postgresql://test:test@localhost:5432/chronicpal_test
       AUTH_SECRET: 'ci-test-secret-32-chars-minimum!!'
       AUTH_URL: http://localhost:3000
       AUTH_TRUST_HOST: 'true'
