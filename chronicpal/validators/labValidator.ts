@@ -13,7 +13,10 @@ export const CreateLabSchema = z.object({
   notes: notesField,
 });
 
+export const UpdateLabSchema = CreateLabSchema.partial();
+
 export const LabQuerySchema = dateRangeQuerySchema;
 
 export type CreateLabInput = z.infer<typeof CreateLabSchema>;
+export type UpdateLabInput = z.infer<typeof UpdateLabSchema>;
 export type LabQueryInput = z.infer<typeof LabQuerySchema>;

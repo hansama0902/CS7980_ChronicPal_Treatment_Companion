@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
-import { ICreateLabDto, ILabQuery, ILabResult } from '@/types/lab';
+import { ICreateLabDto, ILabQuery, ILabResult, IUpdateLabDto } from '@/types/lab';
+import { NotFoundError } from '@/lib/errors';
 
 /**
  * Maps a Prisma LabResult record to the domain ILabResult interface.
@@ -37,6 +38,43 @@ export async function createLab(userId: string, dto: ICreateLabDto): Promise<ILa
     },
   });
   return toLabResult(record);
+}
+
+/**
+ * Updates a lab result. Verifies ownership before updating.
+ * Throws NotFoundError if the entry does not exist or belongs to another user.
+ */
+export async function updateLab(
+  userId: string,
+  id: string,
+  dto: IUpdateLabDto,
+): Promise<ILabResult> {
+  const existing = await prisma.labResult.findFirst({ where: { id, userId } });
+  if (!existing) {
+    throw new NotFoundError('Lab result not found');
+  }
+
+  const record = await prisma.labResult.update({
+    where: { id },
+    data: {
+      ...(dto.date !== undefined ? { date: new Date(dto.date) } : {}),
+      ...(dto.uricAcidLevel !== undefined ? { uricAcidLevel: dto.uricAcidLevel } : {}),
+      ...(dto.notes !== undefined ? { notes: dto.notes } : {}),
+    },
+  });
+  return toLabResult(record);
+}
+
+/**
+ * Deletes a lab result. Verifies ownership before deleting.
+ * Throws NotFoundError if the entry does not exist or belongs to another user.
+ */
+export async function deleteLab(userId: string, id: string): Promise<void> {
+  const existing = await prisma.labResult.findFirst({ where: { id, userId } });
+  if (!existing) {
+    throw new NotFoundError('Lab result not found');
+  }
+  await prisma.labResult.delete({ where: { id } });
 }
 
 /**

@@ -7,3 +7,4 @@ export const MAX_NOTES_LENGTH = 1000;
 export const MAX_SYMPTOM_SEVERITY = 10;
 export const MIN_SYMPTOM_SEVERITY = 1;
 export const BCRYPT_ROUNDS = 12;
+export const URIC_ACID_TARGET_MGDL = 6.0;
