@@ -17,9 +17,7 @@ function makeRequest(url = BASE_URL): NextRequest {
   return new NextRequest(url);
 }
 
-function makeCtx(
-  params: Record<string, string> = {},
-): { params: Promise<Record<string, string>> } {
+function makeCtx(params: Record<string, string> = {}): { params: Promise<Record<string, string>> } {
   return { params: Promise.resolve(params) };
 }
 
@@ -70,9 +68,9 @@ describe('withAuth', () => {
 
   it('returns the handler response on success', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'u1' } });
-    const handler = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify({ success: true }), { status: 200 }),
-    );
+    const handler = vi
+      .fn()
+      .mockResolvedValue(new Response(JSON.stringify({ success: true }), { status: 200 }));
     const wrapped = withAuth(handler);
 
     const res = await wrapped(makeRequest(), makeCtx());
