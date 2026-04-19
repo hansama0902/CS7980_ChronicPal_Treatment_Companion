@@ -1,0 +1,25 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const i=JSON.parse(process.env.CLAUDE_TOOL_INPUT||'{}');const f=i.file_path||'';if(/\\.(ts|tsx)$/.test(f)){try{require('child_process').execSync('npx prettier --write '+JSON.stringify(f),{stdio:'pipe'})}catch(e){}}\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npm run test:run 2>&1 | tail -30"
+          }
+        ]
+      }
+    ]
+  }
+}
