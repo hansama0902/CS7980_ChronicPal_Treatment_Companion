@@ -41,9 +41,7 @@ export default function DashboardCharts({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h2 className="text-base font-semibold text-gray-800 mb-4">
-          Uric Acid — 6-Month Trend
-        </h2>
+        <h2 className="text-base font-semibold text-gray-800 mb-4">Uric Acid — 6-Month Trend</h2>
         {labData.length === 0 ? (
           <p className="text-sm text-gray-400 text-center py-16">No lab data yet</p>
         ) : (
@@ -57,7 +55,12 @@ export default function DashboardCharts({
                 y={URIC_ACID_TARGET_MGDL}
                 stroke="#ef4444"
                 strokeDasharray="5 5"
-                label={{ value: 'Target', position: 'insideTopRight', fill: '#ef4444', fontSize: 10 }}
+                label={{
+                  value: 'Target',
+                  position: 'insideTopRight',
+                  fill: '#ef4444',
+                  fontSize: 10,
+                }}
               />
               <Line
                 type="monotone"

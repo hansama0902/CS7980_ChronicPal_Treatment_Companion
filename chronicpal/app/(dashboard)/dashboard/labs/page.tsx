@@ -44,9 +44,7 @@ export default async function LabsPage() {
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Date</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">
-                Uric Acid (mg/dL)
-              </th>
+              <th className="text-left px-4 py-3 font-medium text-gray-600">Uric Acid (mg/dL)</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Notes</th>
             </tr>
           </thead>

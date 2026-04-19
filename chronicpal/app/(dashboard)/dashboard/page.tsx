@@ -70,7 +70,13 @@ export default async function DashboardPage() {
       : null;
 
   const painColorClass =
-    avgPain === null ? '' : avgPain <= 3 ? 'text-green-600' : avgPain <= 6 ? 'text-yellow-600' : 'text-red-600';
+    avgPain === null
+      ? ''
+      : avgPain <= 3
+        ? 'text-green-600'
+        : avgPain <= 6
+          ? 'text-yellow-600'
+          : 'text-red-600';
 
   const labChartData = labTrend.map((l) => ({
     date: l.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
@@ -84,9 +90,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold text-gray-900">
-        Welcome back, {session?.user?.email}
-      </h1>
+      <h1 className="text-2xl font-semibold text-gray-900">Welcome back, {session?.user?.email}</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
@@ -107,7 +111,11 @@ export default async function DashboardPage() {
           value={latestUricAcid !== null ? `${latestUricAcid} mg/dL` : 'No data'}
           badge={uricTrend ?? undefined}
           badgeColor={
-            uricTrend === '↑' ? 'text-red-500' : uricTrend === '↓' ? 'text-green-500' : 'text-gray-400'
+            uricTrend === '↑'
+              ? 'text-red-500'
+              : uricTrend === '↓'
+                ? 'text-green-500'
+                : 'text-gray-400'
           }
         />
         <StatCard
