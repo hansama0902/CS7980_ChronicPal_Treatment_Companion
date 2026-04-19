@@ -47,7 +47,11 @@ describe('CreateSymptomSchema', () => {
   });
 
   it('rejects an empty symptomType', () => {
-    const result = CreateSymptomSchema.safeParse({ date: VALID_DATE, symptomType: '', severity: 4 });
+    const result = CreateSymptomSchema.safeParse({
+      date: VALID_DATE,
+      symptomType: '',
+      severity: 4,
+    });
     expect(result.success).toBe(false);
   });
 
@@ -92,7 +96,8 @@ describe('CreateSymptomSchema', () => {
       CreateSymptomSchema.safeParse({ date: VALID_DATE, symptomType: 'Pain', severity: 1 }).success,
     ).toBe(true);
     expect(
-      CreateSymptomSchema.safeParse({ date: VALID_DATE, symptomType: 'Pain', severity: 10 }).success,
+      CreateSymptomSchema.safeParse({ date: VALID_DATE, symptomType: 'Pain', severity: 10 })
+        .success,
     ).toBe(true);
   });
 
