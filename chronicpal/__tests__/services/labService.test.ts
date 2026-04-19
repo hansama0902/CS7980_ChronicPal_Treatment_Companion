@@ -135,6 +135,18 @@ describe('getLabs', () => {
     expect(callArg.where.date?.lte).toBeUndefined();
   });
 
+  it('applies only to filter when only to is provided', async () => {
+    mockPrisma.labResult.findMany.mockResolvedValue([]);
+
+    await getLabs(USER_ID, { to: '2026-03-22T00:00:00.000Z' });
+
+    const callArg = mockPrisma.labResult.findMany.mock.calls[0][0] as {
+      where: { date?: { gte?: Date; lte?: Date } };
+    };
+    expect(callArg.where.date?.lte).toEqual(new Date('2026-03-22T00:00:00.000Z'));
+    expect(callArg.where.date?.gte).toBeUndefined();
+  });
+
   it('returns results sorted by date ascending (oldest first)', async () => {
     const older = { ...mockRecord, id: 'lab-0', date: new Date('2026-01-01') };
     const newer = { ...mockRecord, id: 'lab-2', date: new Date('2026-03-01') };

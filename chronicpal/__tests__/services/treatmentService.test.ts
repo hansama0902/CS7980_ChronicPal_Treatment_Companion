@@ -119,6 +119,18 @@ describe('getTreatments', () => {
     expect(callArg.where.date.lte).toEqual(new Date('2026-03-22T00:00:00.000Z'));
   });
 
+  it('applies only to filter when from is omitted', async () => {
+    mockPrisma.treatmentEntry.findMany.mockResolvedValue([]);
+
+    await getTreatments(USER_ID, { to: '2026-03-22T00:00:00.000Z' });
+
+    const callArg = mockPrisma.treatmentEntry.findMany.mock.calls[0][0] as {
+      where: { date?: { gte?: Date; lte?: Date } };
+    };
+    expect(callArg.where.date?.lte).toEqual(new Date('2026-03-22T00:00:00.000Z'));
+    expect(callArg.where.date?.gte).toBeUndefined();
+  });
+
   it('returns an empty array when no entries exist', async () => {
     mockPrisma.treatmentEntry.findMany.mockResolvedValue([]);
     const result = await getTreatments(USER_ID, {});
@@ -152,6 +164,30 @@ describe('updateTreatment', () => {
     await expect(updateTreatment('other-user', ENTRY_ID, {})).rejects.toThrow(
       'Treatment entry not found',
     );
+  });
+
+  it('updates all optional fields when full dto is provided', async () => {
+    const updated = { ...mockRecord, type: 'MEDICATION', uricAcidLevel: 5.5, notes: 'Updated' };
+    mockPrisma.treatmentEntry.findFirst.mockResolvedValue(mockRecord);
+    mockPrisma.treatmentEntry.update.mockResolvedValue(updated);
+
+    const result = await updateTreatment(USER_ID, ENTRY_ID, {
+      date: NOW.toISOString(),
+      type: TreatmentType.MEDICATION,
+      uricAcidLevel: 5.5,
+      painScore: 2,
+      notes: 'Updated',
+    });
+
+    const callArg = mockPrisma.treatmentEntry.update.mock.calls[0][0] as {
+      data: { date: Date; type: string; uricAcidLevel: number; painScore: number; notes: string };
+    };
+    expect(callArg.data.date).toBeInstanceOf(Date);
+    expect(callArg.data.type).toBe(TreatmentType.MEDICATION);
+    expect(callArg.data.uricAcidLevel).toBe(5.5);
+    expect(callArg.data.painScore).toBe(2);
+    expect(callArg.data.notes).toBe('Updated');
+    expect(result.type).toBe('MEDICATION');
   });
 });
 

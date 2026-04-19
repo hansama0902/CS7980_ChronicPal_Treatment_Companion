@@ -157,6 +157,18 @@ describe('getSymptoms', () => {
     expect(callArg.where.date.gte).toEqual(new Date('2026-01-01T00:00:00.000Z'));
     expect(callArg.where.date.lte).toBeUndefined();
   });
+
+  it('applies only to filter when from is omitted', async () => {
+    mockPrisma.symptomEntry.findMany.mockResolvedValue([]);
+
+    await getSymptoms(USER_ID, { to: '2026-03-22T00:00:00.000Z' });
+
+    const callArg = mockPrisma.symptomEntry.findMany.mock.calls[0][0] as {
+      where: { date: { gte?: Date; lte: Date } };
+    };
+    expect(callArg.where.date.lte).toEqual(new Date('2026-03-22T00:00:00.000Z'));
+    expect(callArg.where.date.gte).toBeUndefined();
+  });
 });
 
 describe('updateSymptom', () => {
@@ -185,6 +197,28 @@ describe('updateSymptom', () => {
     await expect(updateSymptom('other-user', ENTRY_ID, {})).rejects.toThrow(
       'Symptom entry not found',
     );
+  });
+
+  it('updates all optional fields when all dto fields are provided', async () => {
+    const updated = { ...mockRecord, symptomType: 'Nausea', severity: 7, notes: 'Updated' };
+    mockPrisma.symptomEntry.findFirst.mockResolvedValue(mockRecord);
+    mockPrisma.symptomEntry.update.mockResolvedValue(updated);
+
+    const result = await updateSymptom(USER_ID, ENTRY_ID, {
+      date: NOW.toISOString(),
+      symptomType: 'Nausea',
+      severity: 7,
+      notes: 'Updated',
+    });
+
+    const callArg = mockPrisma.symptomEntry.update.mock.calls[0][0] as {
+      data: { date: Date; symptomType: string; severity: number; notes: string };
+    };
+    expect(callArg.data.date).toBeInstanceOf(Date);
+    expect(callArg.data.symptomType).toBe('Nausea');
+    expect(callArg.data.severity).toBe(7);
+    expect(callArg.data.notes).toBe('Updated');
+    expect(result.symptomType).toBe('Nausea');
   });
 });
 
