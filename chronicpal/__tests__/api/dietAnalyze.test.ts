@@ -1,23 +1,37 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { NextRequest, NextResponse } from 'next/server';
 
-vi.mock('@/lib/routeAuth', () => ({
-  withAuth:
-    (
-      handler: (
-        userId: string,
+vi.mock('@/lib/routeAuth', async () => {
+  const { NextResponse } = await import('next/server');
+  return {
+    withAuth:
+      (
+        handler: (
+          userId: string,
+          req: NextRequest,
+          params: Record<string, string>,
+        ) => Promise<NextResponse>,
+      ) =>
+      async (
         req: NextRequest,
-        params: Record<string, string>,
-      ) => Promise<NextResponse>,
-    ) =>
-    async (
-      req: NextRequest,
-      ctx?: { params?: Promise<Record<string, string>> },
-    ): Promise<NextResponse> => {
-      const params = ctx?.params ? await ctx.params : {};
-      return handler('test-user-id', req, params);
-    },
-}));
+        ctx?: { params?: Promise<Record<string, string>> },
+      ): Promise<NextResponse> => {
+        const params = ctx?.params ? await ctx.params : {};
+        try {
+          return await handler('test-user-id', req, params);
+        } catch (err) {
+          const e = err as { statusCode?: number; message?: string };
+          if (typeof e.statusCode === 'number') {
+            return NextResponse.json(
+              { success: false, error: e.message ?? 'Error' },
+              { status: e.statusCode },
+            );
+          }
+          return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
+        }
+      },
+  };
+});
 
 vi.mock('@/services/aiService', () => ({
   analyzeDiet: vi.fn(),
