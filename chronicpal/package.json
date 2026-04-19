@@ -16,6 +16,7 @@
     "ci:check": "npm run lint && npm run format:check && npm run typecheck && npm run test:run"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.90.0",
     "@prisma/client": "^6.19.3",
     "bcryptjs": "^3.0.3",
     "next": "16.2.4",
