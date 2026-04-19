@@ -14,6 +14,12 @@ export interface ICreateLabDto {
   notes?: string;
 }
 
+export interface IUpdateLabDto {
+  date?: string;
+  uricAcidLevel?: number;
+  notes?: string;
+}
+
 export interface ILabQuery {
   from?: string;
   to?: string;
