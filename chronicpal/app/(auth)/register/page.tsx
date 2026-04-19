@@ -27,16 +27,26 @@ export default function RegisterPage() {
         setError(data.error ?? 'Registration failed');
         return;
       }
-      // Auto-login after successful registration
+    } catch {
+      setError('Something went wrong. Please try again.');
+      return;
+    } finally {
+      setIsLoading(false);
+    }
+
+    // Registration succeeded — now sign in
+    setIsLoading(true);
+    try {
       const result = await signIn('credentials', { email, password, redirect: false });
       if (result?.error) {
-        setError('Account created — please log in.');
+        // Account was created; direct the user to log in manually
         router.push('/login');
       } else {
         router.push('/dashboard');
       }
     } catch {
-      setError('Something went wrong. Please try again.');
+      // signIn threw (e.g. network error) — account exists, send to login
+      router.push('/login');
     } finally {
       setIsLoading(false);
     }

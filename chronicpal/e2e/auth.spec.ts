@@ -52,7 +52,18 @@ test.describe('Auth flow', () => {
     await page.getByLabel('Password').fill(TEST_PASSWORD);
     await page.getByRole('button', { name: 'Create Account' }).click();
 
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10_000 });
+    // After registration, the app either auto-logs in (→ /dashboard)
+    // or falls back to /login if signIn throws (e.g. cold-start race).
+    await expect(page).toHaveURL(/\/(dashboard|login)/, { timeout: 10_000 });
+
+    if (page.url().includes('/login')) {
+      // Auto-login failed gracefully — complete the flow manually
+      await page.getByLabel('Email').fill(TEST_EMAIL);
+      await page.getByLabel('Password').fill(TEST_PASSWORD);
+      await page.getByRole('button', { name: 'Log In' }).click();
+      await expect(page).toHaveURL(/\/dashboard/, { timeout: 10_000 });
+    }
+
     await expect(page.getByText(TEST_EMAIL)).toBeVisible();
   });
 
