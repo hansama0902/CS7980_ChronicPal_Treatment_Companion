@@ -68,7 +68,11 @@ describe('PUT /api/diet/[id]', () => {
     const body = await res.json();
     expect(body.success).toBe(true);
     expect(body.data.meal).toBe('Salad');
-    expect(mockUpdate).toHaveBeenCalledWith('test-user-id', 'd-1', expect.objectContaining({ meal: 'Salad' }));
+    expect(mockUpdate).toHaveBeenCalledWith(
+      'test-user-id',
+      'd-1',
+      expect.objectContaining({ meal: 'Salad' }),
+    );
   });
 
   it('returns 400 when body fails validation', async () => {

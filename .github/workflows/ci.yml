@@ -21,7 +21,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
           cache: npm
           cache-dependency-path: chronicpal/package-lock.json
 
@@ -41,7 +41,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
           cache: npm
           cache-dependency-path: chronicpal/package-lock.json
 
@@ -56,7 +56,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
           cache: npm
           cache-dependency-path: chronicpal/package-lock.json
 
@@ -75,7 +75,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
           cache: npm
           cache-dependency-path: chronicpal/package-lock.json
 
@@ -156,16 +156,16 @@ jobs:
     env:
       DATABASE_URL: postgresql://test:test@localhost:5432/chronicpal_test
       DIRECT_URL: postgresql://test:test@localhost:5432/chronicpal_test
-      AUTH_SECRET: 'ci-test-secret-32-chars-minimum!!'
+      AUTH_SECRET: "ci-test-secret-32-chars-minimum!!"
       AUTH_URL: http://localhost:3000
-      AUTH_TRUST_HOST: 'true'
+      AUTH_TRUST_HOST: "true"
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
           cache: npm
           cache-dependency-path: chronicpal/package-lock.json
 
@@ -212,7 +212,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
           cache: npm
           cache-dependency-path: chronicpal/package-lock.json
 
@@ -267,7 +267,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
           cache: npm
           cache-dependency-path: chronicpal/package-lock.json
 

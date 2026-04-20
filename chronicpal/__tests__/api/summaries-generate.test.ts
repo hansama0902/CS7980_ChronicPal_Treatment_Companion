@@ -35,8 +35,19 @@ const END = '2026-04-01T00:00:00.000Z';
 
 const mockResult = {
   rawData: {
-    treatmentSummary: { infusionsCount: 1, infusionDates: [], hasReactions: false, nextScheduled: null },
-    labTrends: { uricAcidTrend: [], latestUricAcid: 5.5, percentChange: null, aboveTarget: false, targetMgdl: 6.0 },
+    treatmentSummary: {
+      infusionsCount: 1,
+      infusionDates: [],
+      hasReactions: false,
+      nextScheduled: null,
+    },
+    labTrends: {
+      uricAcidTrend: [],
+      latestUricAcid: 5.5,
+      percentChange: null,
+      aboveTarget: false,
+      targetMgdl: 6.0,
+    },
     symptomOverview: { avgPainScore: null, severeFlares: [], flareFreeDays: 90, totalDays: 90 },
     dietCompliance: { compliancePercent: 80, totalMeals: 10, lowPurineMeals: 8, highRiskItems: [] },
   },

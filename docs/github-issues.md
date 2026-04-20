@@ -17,9 +17,11 @@
 **Milestone**: Sprint 1
 
 #### Description
+
 Bootstrap the ChronicPal Next.js application with all foundational tooling.
 
 #### Acceptance Criteria
+
 - [ ] `npx create-next-app@latest` with App Router, TypeScript, Tailwind, ESLint
 - [ ] Prisma initialized with PostgreSQL provider pointing to Supabase
 - [ ] Project structure: `src/app/`, `src/lib/`, `src/services/`, `src/validators/`
@@ -37,9 +39,11 @@ Bootstrap the ChronicPal Next.js application with all foundational tooling.
 **Milestone**: Sprint 1
 
 #### Description
+
 Comprehensive CLAUDE.md and Claude Code configuration for the project.
 
 #### Acceptance Criteria
+
 - [ ] `CLAUDE.md` with tech stack, architecture, conventions, do's/don'ts
 - [ ] At least one `@import` reference (e.g., `docs/PRD.md`)
 - [ ] `.claude/settings.json` with permission allowlists and deny rules
@@ -55,9 +59,11 @@ Comprehensive CLAUDE.md and Claude Code configuration for the project.
 **Milestone**: Sprint 1
 
 #### Description
+
 Set up the full CI/CD pipeline with all required quality gates.
 
 #### Acceptance Criteria
+
 - [ ] `.github/workflows/ci.yml` with the following gates:
   1. Lint (ESLint + Prettier check)
   2. Type check (`tsc --noEmit`)
@@ -80,9 +86,11 @@ Set up the full CI/CD pipeline with all required quality gates.
 **Milestone**: Sprint 1
 
 #### Description
+
 Implement authentication with NextAuth.js supporting two user roles: Patient and Caregiver.
 
 #### Acceptance Criteria
+
 - [ ] NextAuth configured with Credentials provider (email + password)
 - [ ] Prisma `User` model with `role` enum: `PATIENT`, `CAREGIVER`
 - [ ] Registration page (`/register`) with role selection (Patient or Caregiver)
@@ -94,6 +102,7 @@ Implement authentication with NextAuth.js supporting two user roles: Patient and
 - [ ] **TDD**: Unit tests for auth validation logic pass BEFORE implementation
 
 #### Security Acceptance Criteria
+
 - [ ] No passwords in logs or error messages
 - [ ] Rate limiting on login attempts
 
@@ -106,9 +115,11 @@ Implement authentication with NextAuth.js supporting two user roles: Patient and
 **Milestone**: Sprint 1
 
 #### Description
+
 Design and implement the full Prisma schema for ChronicPal.
 
 #### Acceptance Criteria
+
 - [ ] `prisma/schema.prisma` includes models:
   - `User` (id, email, passwordHash, name, role, createdAt, updatedAt)
   - `Treatment` (id, userId, type, date, medication, dosage, painScore, notes, createdAt)
@@ -122,6 +133,7 @@ Design and implement the full Prisma schema for ChronicPal.
 - [ ] All models have proper relations and cascade delete rules
 
 #### Security Acceptance Criteria
+
 - [ ] No PHI in seed data console output
 - [ ] Soft delete implemented (not hard delete)
 
@@ -134,12 +146,15 @@ Design and implement the full Prisma schema for ChronicPal.
 **Milestone**: Sprint 1
 
 #### Description
+
 Patients can log, view, edit, and delete treatment sessions (e.g., gout infusion).
 
 #### User Story
+
 As a patient, I want to log each infusion session so I can track my treatment history over time.
 
 #### Acceptance Criteria
+
 - [ ] `POST /api/treatments` — create a treatment record
 - [ ] `GET /api/treatments` — list treatments for authenticated user (paginated)
 - [ ] `PUT /api/treatments/[id]` — update a treatment record (owner only)
@@ -150,6 +165,7 @@ As a patient, I want to log each infusion session so I can track my treatment hi
 - [ ] Integration tests for Prisma CRUD operations
 
 #### Security Acceptance Criteria
+
 - [ ] Authorization check: owner only
 - [ ] No PHI in logs or error messages
 - [ ] Input validated with Zod
@@ -163,12 +179,15 @@ As a patient, I want to log each infusion session so I can track my treatment hi
 **Milestone**: Sprint 1
 
 #### Description
+
 Patients can log and view lab results (e.g., uric acid levels).
 
 #### User Story
+
 As a patient, I want to log my uric acid levels so I can see trends over time.
 
 #### Acceptance Criteria
+
 - [ ] `POST /api/labs` — create a lab result
 - [ ] `GET /api/labs` — list lab results for authenticated user (paginated)
 - [ ] `PUT /api/labs/[id]` — update a lab result (owner only)
@@ -180,6 +199,7 @@ As a patient, I want to log my uric acid levels so I can see trends over time.
 - [ ] Integration tests for Prisma CRUD operations
 
 #### Security Acceptance Criteria
+
 - [ ] Authorization check: owner only
 - [ ] No PHI in logs or error messages
 
@@ -192,12 +212,15 @@ As a patient, I want to log my uric acid levels so I can see trends over time.
 **Milestone**: Sprint 1
 
 #### Description
+
 Patients can log daily symptoms with a pain score (0-10 scale).
 
 #### User Story
+
 As a patient, I want to record my daily pain levels so I can identify patterns and share them with my doctor.
 
 #### Acceptance Criteria
+
 - [ ] `POST /api/symptoms` — create a symptom entry
 - [ ] `GET /api/symptoms` — list symptoms for authenticated user
 - [ ] UI at `/dashboard/symptoms` with pain score slider (0-10) + description textarea
@@ -206,6 +229,7 @@ As a patient, I want to record my daily pain levels so I can identify patterns a
 - [ ] Visual pain score indicator (color-coded: green/yellow/red)
 
 #### Security Acceptance Criteria
+
 - [ ] Input validated with Zod
 - [ ] No PHI in logs
 
@@ -222,12 +246,15 @@ As a patient, I want to record my daily pain levels so I can identify patterns a
 **Milestone**: Sprint 2
 
 #### Description
+
 Patient inputs a meal description; backend calls AI API to analyze purine content and return risk assessment.
 
 #### User Story
+
 As a patient, I want to input my meals and receive instant purine-risk feedback so I can make informed dietary choices.
 
 #### Acceptance Criteria
+
 - [ ] `POST /api/diet/analyze` — accepts meal description, returns purine risk analysis
 - [ ] AI API called from backend ONLY (never from client)
 - [ ] Response includes: risk level (LOW/MEDIUM/HIGH), purine estimate, specific food flags, dietary suggestion
@@ -239,6 +266,7 @@ As a patient, I want to input my meals and receive instant purine-risk feedback 
 - [ ] Error handling: graceful fallback if AI API is unavailable
 
 #### Security Acceptance Criteria
+
 - [ ] Input sanitized before sending to AI API
 - [ ] No PHI in logs
 - [ ] Rate limited
@@ -252,12 +280,15 @@ As a patient, I want to input my meals and receive instant purine-risk feedback 
 **Milestone**: Sprint 2
 
 #### Description
+
 Before a doctor visit, the system auto-generates a concise summary covering recent treatments, lab trends, symptoms, and dietary patterns.
 
 #### User Story
+
 As a patient, I want a pre-visit summary auto-generated before each appointment so I can communicate effectively with my doctor.
 
 #### Acceptance Criteria
+
 - [ ] `POST /api/summaries/generate` — generates summary for a date range
 - [ ] Summary aggregates: last N treatments, lab result trends, avg pain score, diet compliance
 - [ ] AI API generates natural language summary from aggregated data
@@ -268,6 +299,7 @@ As a patient, I want a pre-visit summary auto-generated before each appointment 
 - [ ] Summary clearly labeled as 'AI-generated, not medical advice'
 
 #### Security Acceptance Criteria
+
 - [ ] No raw PHI sent to AI API — only aggregated/anonymized data
 - [ ] Rate limited
 
@@ -280,12 +312,15 @@ As a patient, I want a pre-visit summary auto-generated before each appointment 
 **Milestone**: Sprint 2
 
 #### Description
+
 Caregivers can view linked patients' treatment adherence and dietary compliance in a read-only dashboard.
 
 #### User Story
+
 As a caregiver, I want a shared dashboard showing the patient's treatment adherence and dietary compliance so I can provide timely reminders.
 
 #### Acceptance Criteria
+
 - [ ] Patient can send caregiver invite via email
 - [ ] Caregiver accepts invite, creating a `CaregiverLink` record
 - [ ] `/caregiver/dashboard` shows linked patients list
@@ -295,6 +330,7 @@ As a caregiver, I want a shared dashboard showing the patient's treatment adhere
 - [ ] Patient can revoke caregiver access
 
 #### Security Acceptance Criteria
+
 - [ ] Strict authorization: only linked caregivers can view patient data
 - [ ] Invite tokens expire after 48h
 
@@ -313,9 +349,11 @@ As a caregiver, I want a shared dashboard showing the patient's treatment adhere
 **Milestone**: Sprint 2
 
 #### Description
+
 Patients can log daily meals and view their historical purine risk patterns.
 
 #### Acceptance Criteria
+
 - [ ] `POST /api/diet` — log a meal (description, mealType: breakfast/lunch/dinner/snack)
 - [ ] `GET /api/diet` — list diet entries with risk scores
 - [ ] UI shows weekly calendar view of meals with color-coded risk levels
@@ -323,6 +361,7 @@ Patients can log daily meals and view their historical purine risk patterns.
 - [ ] Filter by date range and meal type
 
 #### Security Acceptance Criteria
+
 - [ ] Input validated with Zod
 - [ ] Owner-only access
 
@@ -335,9 +374,11 @@ Patients can log daily meals and view their historical purine risk patterns.
 **Milestone**: Sprint 2
 
 #### Description
+
 Central dashboard for patients showing all health metrics in one view.
 
 #### Acceptance Criteria
+
 - [ ] `/dashboard` as the patient home page after login
 - [ ] Cards: next treatment date, latest uric acid level, avg pain score (7-day), diet compliance %
 - [ ] Recharts: uric acid trend line (last 6 months)
@@ -347,6 +388,7 @@ Central dashboard for patients showing all health metrics in one view.
 - [ ] All charts use `ResponsiveContainer`
 
 #### Security Acceptance Criteria
+
 - [ ] Only show authenticated user's own data
 - [ ] No PHI in client-side logs
 
@@ -359,9 +401,11 @@ Central dashboard for patients showing all health metrics in one view.
 **Milestone**: Sprint 2
 
 #### Description
+
 At least 1 Playwright E2E test covering a critical user flow end-to-end.
 
 #### Acceptance Criteria
+
 - [ ] Playwright configured (`playwright.config.ts`)
 - [ ] E2E test: Patient registers → logs in → creates treatment → views dashboard → generates summary
 - [ ] Tests run in CI pipeline (GitHub Actions)
@@ -377,9 +421,11 @@ At least 1 Playwright E2E test covering a critical user flow end-to-end.
 **Milestone**: Sprint 2
 
 #### Description
+
 Implement security measures meeting at least 4 of 8 required security gates.
 
 #### Acceptance Criteria
+
 - [ ] **Gate 1**: Gitleaks pre-commit secret detection configured and working
 - [ ] **Gate 2**: `npm audit` running in CI, failing on high/critical vulnerabilities
 - [ ] **Gate 3**: SAST tool OR security sub-agent reviewing PRs
@@ -394,10 +440,10 @@ Implement security measures meeting at least 4 of 8 required security gates.
 
 ## Summary of Changes (vs. Original)
 
-| Change | Detail |
-|--------|--------|
-| **Removed** | CP-12 (Healthcare Advisor View) — entire issue deleted |
-| **Modified** | CP-4: role enum changed from `PATIENT, CAREGIVER, ADVISOR` to `PATIENT, CAREGIVER` |
-| **Modified** | CP-4: removed ADVISOR route protection requirement |
-| **Modified** | CP-14: Quick Actions updated to include "Log Symptoms" (5 buttons total) |
-| **Total Issues** | 15 (was 16) |
+| Change           | Detail                                                                             |
+| ---------------- | ---------------------------------------------------------------------------------- |
+| **Removed**      | CP-12 (Healthcare Advisor View) — entire issue deleted                             |
+| **Modified**     | CP-4: role enum changed from `PATIENT, CAREGIVER, ADVISOR` to `PATIENT, CAREGIVER` |
+| **Modified**     | CP-4: removed ADVISOR route protection requirement                                 |
+| **Modified**     | CP-14: Quick Actions updated to include "Log Symptoms" (5 buttons total)           |
+| **Total Issues** | 15 (was 16)                                                                        |

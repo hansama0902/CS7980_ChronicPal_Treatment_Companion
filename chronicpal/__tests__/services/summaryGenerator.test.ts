@@ -98,9 +98,7 @@ describe('generateVisitSummary', () => {
   });
 
   it('marks aboveTarget when latest uric acid exceeds threshold', async () => {
-    mockLabFindMany.mockResolvedValue([
-      { date: new Date('2026-03-15'), uricAcidLevel: 9.0 },
-    ]);
+    mockLabFindMany.mockResolvedValue([{ date: new Date('2026-03-15'), uricAcidLevel: 9.0 }]);
     const result = await generateVisitSummary(USER_ID, START, END);
     expect(result.rawData.labTrends.aboveTarget).toBe(true);
   });
@@ -156,9 +154,7 @@ describe('generateVisitSummary', () => {
 
   it('strips markdown code fences from AI response', async () => {
     mockMessagesCreate.mockResolvedValue({
-      content: [
-        { type: 'text', text: '```json\n' + JSON.stringify(VALID_NARRATIVE) + '\n```' },
-      ],
+      content: [{ type: 'text', text: '```json\n' + JSON.stringify(VALID_NARRATIVE) + '\n```' }],
     });
     const result = await generateVisitSummary(USER_ID, START, END);
     expect(result.aiNarrative.keyConcerns).toHaveLength(1);
