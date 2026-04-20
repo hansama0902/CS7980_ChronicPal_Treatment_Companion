@@ -5,7 +5,8 @@ export const RegisterSchema = z.object({
   password: z
     .string()
     .min(8, { message: 'password must be at least 8 characters' })
-    .max(72, { message: 'password must be ≤ 72 characters' }), // bcrypt max
+    .max(72, { message: 'password must be ≤ 72 characters' }),
+  role: z.enum(['PATIENT', 'CAREGIVER']).default('PATIENT'),
 });
 
 export const LoginSchema = z.object({

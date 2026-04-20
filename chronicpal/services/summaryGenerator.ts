@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { prisma } from '@/lib/prisma';
 import { checkSummaryRateLimit } from '@/lib/rateLimit';
 import { URIC_ACID_TARGET_MGDL } from '@/lib/constants';
@@ -6,7 +7,32 @@ import { BadRequestError, TooManyRequestsError } from '@/lib/errors';
 import { VISIT_SUMMARY_SYSTEM_PROMPT, buildVisitSummaryPrompt } from './prompts/visit-summary';
 import type { ISummaryResult, ISummaryNarrative } from '@/types/summary';
 
-const client = new Anthropic();
+const anthropicClient = new Anthropic({ maxRetries: 1 });
+const geminiClient = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+
+/** Tries Gemini 2.5 Pro first; falls back to Claude on any error. */
+async function generateNarrativeText(userPrompt: string): Promise<string> {
+  try {
+    const model = geminiClient.getGenerativeModel({
+      model: 'gemini-2.5-pro',
+      systemInstruction: VISIT_SUMMARY_SYSTEM_PROMPT,
+    });
+    const result = await model.generateContent(userPrompt);
+    return result.response.text();
+  } catch {
+    const message = await anthropicClient.messages.create({
+      model: 'claude-sonnet-4-5',
+      max_tokens: 1024,
+      system: VISIT_SUMMARY_SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: userPrompt }],
+    });
+    const textBlock = message.content.find((c) => c.type === 'text');
+    if (!textBlock || textBlock.type !== 'text') {
+      throw new BadRequestError('No text response from AI');
+    }
+    return textBlock.text;
+  }
+}
 
 function parseNarrativeResponse(text: string): ISummaryNarrative {
   const cleaned = text
@@ -143,19 +169,8 @@ export async function generateVisitSummary(
 
   const userPrompt = buildVisitSummaryPrompt(aggregatedStats);
 
-  const message = await client.messages.create({
-    model: 'claude-sonnet-4-5',
-    max_tokens: 1024,
-    system: VISIT_SUMMARY_SYSTEM_PROMPT,
-    messages: [{ role: 'user', content: userPrompt }],
-  });
-
-  const textBlock = message.content.find((c) => c.type === 'text');
-  if (!textBlock || textBlock.type !== 'text') {
-    throw new BadRequestError('No text response from AI');
-  }
-
-  const aiNarrative = parseNarrativeResponse(textBlock.text);
+  const rawText = await generateNarrativeText(userPrompt);
+  const aiNarrative = parseNarrativeResponse(rawText);
 
   return {
     rawData: {

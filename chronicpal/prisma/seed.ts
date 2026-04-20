@@ -37,14 +37,6 @@ async function main() {
     },
   });
 
-  await prisma.user.create({
-    data: {
-      email: 'advisor@example.com',
-      passwordHash,
-      role: UserRole.ADVISOR,
-    },
-  });
-
   const now = new Date('2026-04-19T00:00:00Z');
   const daysAgo = (n: number) => new Date(now.getTime() - n * 86_400_000);
 
@@ -188,7 +180,7 @@ async function main() {
   });
 
   console.log(
-    'Seed complete: 3 users, 5 treatments, 5 labs, 10 symptoms, 8 diet entries, 1 caregiver link',
+    'Seed complete: 2 users, 5 treatments, 5 labs, 10 symptoms, 8 diet entries, 1 caregiver link',
   );
 }
 

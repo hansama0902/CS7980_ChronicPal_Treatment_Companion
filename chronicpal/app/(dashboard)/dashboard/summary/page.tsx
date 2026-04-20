@@ -73,7 +73,8 @@ export default function SummaryPage() {
       }
       setResult(json.data as ISummaryResult);
       addToast('success', 'Summary generated successfully.');
-    } catch {
+    } catch (err) {
+      console.error('[summary] fetch error', err);
       addToast('error', 'Network error. Please try again.');
     } finally {
       setIsLoading(false);
