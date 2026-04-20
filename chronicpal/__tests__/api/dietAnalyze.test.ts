@@ -84,7 +84,14 @@ describe('POST /api/diet/analyze', () => {
       body: JSON.stringify({ meal: 'Chicken breast', mealType: 'LUNCH', date: NOW }),
     });
     await POST(req, { params: Promise.resolve({}) });
-    expect(mockAnalyze).toHaveBeenCalledWith('test-user-id', 'Chicken breast', 'LUNCH', NOW, undefined, undefined);
+    expect(mockAnalyze).toHaveBeenCalledWith(
+      'test-user-id',
+      'Chicken breast',
+      'LUNCH',
+      NOW,
+      undefined,
+      undefined,
+    );
   });
 
   it('returns 400 and skips service when meal is missing', async () => {
