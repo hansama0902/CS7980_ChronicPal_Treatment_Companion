@@ -12,7 +12,7 @@ export default async function DietPage() {
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
   const entries = await prisma.dietEntry.findMany({
-    where: { userId, date: { gte: thirtyDaysAgo } },
+    where: { userId, date: { gte: thirtyDaysAgo }, deletedAt: null },
     orderBy: { date: 'desc' },
     select: {
       id: true,
@@ -33,20 +33,10 @@ export default async function DietPage() {
     date: e.date.toISOString(),
   }));
 
-  const chartData = entries
-    .filter((e) => e.riskScore !== null)
-    .slice()
-    .sort((a, b) => a.date.getTime() - b.date.getTime())
-    .map((e) => ({
-      date: e.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      purineEstimate: e.riskScore!,
-      risk: e.purineLevel as 'LOW' | 'MEDIUM' | 'HIGH',
-    }));
-
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-semibold text-gray-900">Diet &amp; Purine Tracker</h1>
-      <DietAnalysisClient history={history} chartData={chartData} />
+      <DietAnalysisClient history={history} />
     </div>
   );
 }

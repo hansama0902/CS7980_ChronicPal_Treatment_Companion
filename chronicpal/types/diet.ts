@@ -21,6 +21,12 @@ export interface IDietQuery {
   to?: string;
 }
 
+export interface IUpdateDietDto {
+  meal: string;
+  mealType: 'BREAKFAST' | 'LUNCH' | 'DINNER' | 'SNACK';
+  date: string;
+}
+
 export interface IDietFoodItem {
   name: string;
   risk: 'LOW' | 'MEDIUM' | 'HIGH';

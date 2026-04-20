@@ -34,6 +34,9 @@ export const AnalyzeDietSchema = z
 
 export const DietQuerySchema = dateRangeQuerySchema;
 
+export const UpdateDietSchema = CreateDietSchema;
+
 export type CreateDietInput = z.infer<typeof CreateDietSchema>;
 export type AnalyzeDietInput = z.infer<typeof AnalyzeDietSchema>;
 export type DietQueryInput = z.infer<typeof DietQuerySchema>;
+export type UpdateDietInput = z.infer<typeof UpdateDietSchema>;
