@@ -10,3 +10,4 @@ export const BCRYPT_ROUNDS = 12;
 export const URIC_ACID_TARGET_MGDL = 6.0;
 export const MAX_MEAL_DESCRIPTION_LENGTH = 500;
 export const MAX_DAILY_DIET_ANALYSES = 10;
+export const MAX_DAILY_SUMMARIES = 5;

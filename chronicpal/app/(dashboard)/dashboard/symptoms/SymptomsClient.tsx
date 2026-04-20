@@ -39,6 +39,12 @@ const CARD_BADGE: Record<PainLevel, React.CSSProperties> = {
 const TRACK_GRADIENT =
   'linear-gradient(to right, #16A34A 0%, #16A34A 30%, #F59E0B 30%, #F59E0B 60%, #EF4444 60%, #EF4444 100%)';
 
+type SymptomApiResponse = {
+  success: boolean;
+  data?: { id: string; date: string; severity: number; notes: string | null };
+  error?: string;
+};
+
 export default function SymptomsClient({ initialSymptoms }: { initialSymptoms: Symptom[] }) {
   const [symptoms, setSymptoms] = useState<Symptom[]>(initialSymptoms);
   const [score, setScore] = useState(5);
@@ -46,50 +52,108 @@ export default function SymptomsClient({ initialSymptoms }: { initialSymptoms: S
   const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteLoadingId, setDeleteLoadingId] = useState<string | null>(null);
 
   const level = getPainLevel(score);
   const scoreStyle = SCORE_COLORS[level];
+
+  function startEdit(s: Symptom) {
+    setEditingId(s.id);
+    setScore(s.severity);
+    setDescription(s.notes ?? '');
+    setDate(new Date(s.date).toISOString().split('T')[0]);
+    setError(null);
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setScore(5);
+    setDescription('');
+    setDate(new Date().toISOString().split('T')[0]);
+    setError(null);
+  }
 
   async function handleSubmit() {
     if (!description.trim()) return;
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/symptoms', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          severity: Math.max(1, score),
-          symptomType: 'Pain',
-          notes: description.trim(),
-          date: new Date(`${date}T12:00:00.000Z`).toISOString(),
-        }),
-      });
-      const data = (await res.json()) as {
-        success: boolean;
-        data?: { id: string; date: string; severity: number; notes: string | null };
-        error?: string;
+      const body = {
+        severity: Math.max(1, score),
+        symptomType: 'Pain',
+        notes: description.trim(),
+        date: new Date(`${date}T12:00:00.000Z`).toISOString(),
       };
-      if (!data.success || !data.data) {
-        setError(data.error ?? 'Failed to save');
+
+      if (editingId) {
+        const res = await fetch(`/api/symptoms/${editingId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const data = (await res.json()) as SymptomApiResponse;
+        if (!data.success || !data.data) {
+          setError(data.error ?? 'Failed to update');
+        } else {
+          setSymptoms((prev) =>
+            prev.map((s) =>
+              s.id === editingId
+                ? {
+                    id: data.data!.id,
+                    date: data.data!.date,
+                    severity: data.data!.severity,
+                    notes: data.data!.notes,
+                  }
+                : s,
+            ),
+          );
+          cancelEdit();
+        }
       } else {
-        setSymptoms((prev) => [
-          {
-            id: data.data!.id,
-            date: data.data!.date,
-            severity: data.data!.severity,
-            notes: data.data!.notes,
-          },
-          ...prev,
-        ]);
-        setDescription('');
-        setScore(5);
-        setDate(new Date().toISOString().split('T')[0]);
+        const res = await fetch('/api/symptoms', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const data = (await res.json()) as SymptomApiResponse;
+        if (!data.success || !data.data) {
+          setError(data.error ?? 'Failed to save');
+        } else {
+          setSymptoms((prev) => [
+            {
+              id: data.data!.id,
+              date: data.data!.date,
+              severity: data.data!.severity,
+              notes: data.data!.notes,
+            },
+            ...prev,
+          ]);
+          setDescription('');
+          setScore(5);
+          setDate(new Date().toISOString().split('T')[0]);
+        }
       }
     } catch {
       setError('Failed to connect to server');
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleDelete(id: string) {
+    setDeleteLoadingId(id);
+    try {
+      const res = await fetch(`/api/symptoms/${id}`, { method: 'DELETE' });
+      const data = (await res.json()) as { success: boolean; error?: string };
+      if (data.success) {
+        setSymptoms((prev) => prev.filter((s) => s.id !== id));
+        if (editingId === id) cancelEdit();
+      }
+    } catch {
+      // leave symptom in list on network error
+    } finally {
+      setDeleteLoadingId(null);
     }
   }
 
@@ -109,9 +173,11 @@ export default function SymptomsClient({ initialSymptoms }: { initialSymptoms: S
       </div>
 
       <div className="flex gap-5">
-        {/* Left: Log Symptom (≈60%) */}
+        {/* Left: Log / Edit Symptom (≈60%) */}
         <div className="flex-[3] bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <h2 className="text-lg font-bold text-gray-900 mb-5">Log Symptom</h2>
+          <h2 className="text-lg font-bold text-gray-900 mb-5">
+            {editingId ? 'Edit Symptom' : 'Log Symptom'}
+          </h2>
 
           {/* Pain Score */}
           <div className="mb-6">
@@ -167,7 +233,7 @@ export default function SymptomsClient({ initialSymptoms }: { initialSymptoms: S
             />
           </div>
 
-          {/* Date + Save */}
+          {/* Date + Save/Update */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold text-gray-700">Date</span>
@@ -178,14 +244,30 @@ export default function SymptomsClient({ initialSymptoms }: { initialSymptoms: S
                 className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
-            <button
-              onClick={() => void handleSubmit()}
-              disabled={loading || !description.trim()}
-              className="px-5 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors hover:opacity-90"
-              style={{ backgroundColor: '#2563EB' }}
-            >
-              {loading ? 'Saving...' : 'Save Symptom'}
-            </button>
+            <div className="flex items-center gap-2">
+              {editingId && (
+                <button
+                  onClick={cancelEdit}
+                  className="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors"
+                >
+                  Cancel
+                </button>
+              )}
+              <button
+                onClick={() => void handleSubmit()}
+                disabled={loading || !description.trim()}
+                className="px-5 py-2 rounded-lg text-sm font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors hover:opacity-90"
+                style={{ backgroundColor: '#2563EB' }}
+              >
+                {loading
+                  ? editingId
+                    ? 'Updating...'
+                    : 'Saving...'
+                  : editingId
+                    ? 'Update Symptom'
+                    : 'Save Symptom'}
+              </button>
+            </div>
           </div>
 
           {error && <p className="text-sm text-red-600 mt-3">{error}</p>}
@@ -200,10 +282,14 @@ export default function SymptomsClient({ initialSymptoms }: { initialSymptoms: S
             ) : (
               symptoms.slice(0, 12).map((s) => {
                 const lvl = getPainLevel(s.severity);
+                const isEditing = editingId === s.id;
+                const isDeleting = deleteLoadingId === s.id;
                 return (
                   <div
                     key={s.id}
-                    className="flex rounded-lg border border-gray-100 overflow-hidden"
+                    className={`flex rounded-lg border overflow-hidden transition-colors ${
+                      isEditing ? 'border-blue-300 bg-blue-50' : 'border-gray-100'
+                    }`}
                   >
                     <div className="w-1 shrink-0" style={{ backgroundColor: CARD_BAR[lvl] }} />
                     <div className="flex-1 px-3 py-2.5">
@@ -215,12 +301,30 @@ export default function SymptomsClient({ initialSymptoms }: { initialSymptoms: S
                             year: 'numeric',
                           })}
                         </span>
-                        <span
-                          className="text-xs font-semibold px-2 py-0.5 rounded-full"
-                          style={CARD_BADGE[lvl]}
-                        >
-                          {s.severity}/10
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                            style={CARD_BADGE[lvl]}
+                          >
+                            {s.severity}/10
+                          </span>
+                          <button
+                            onClick={() => startEdit(s)}
+                            disabled={isDeleting}
+                            title="Edit"
+                            className="text-gray-400 hover:text-blue-500 transition-colors disabled:opacity-40 px-1 text-xs"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            onClick={() => void handleDelete(s.id)}
+                            disabled={isDeleting}
+                            title="Delete"
+                            className="text-gray-400 hover:text-red-500 transition-colors disabled:opacity-40 px-1 text-xs"
+                          >
+                            {isDeleting ? '...' : '🗑️'}
+                          </button>
+                        </div>
                       </div>
                       {s.notes && <p className="text-xs text-gray-500 truncate">{s.notes}</p>}
                     </div>
