@@ -45,7 +45,7 @@ export default async function DietPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold text-gray-900">Diet Analysis</h1>
+      <h1 className="text-2xl font-semibold text-gray-900">Diet &amp; Purine Tracker</h1>
       <DietAnalysisClient history={history} chartData={chartData} />
     </div>
   );
