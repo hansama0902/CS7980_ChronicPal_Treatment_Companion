@@ -1,6 +1,3 @@
-// This is your Prisma schema file.
-// Run `npx prisma generate` after any changes.
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,10 +8,96 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-enum TreatmentType {
-  INFUSION
-  MEDICATION
-  CLINIC_VISIT
+model CaregiverLink {
+  id          String     @id @default(uuid())
+  caregiverId String
+  patientId   String
+  status      LinkStatus @default(PENDING)
+  createdAt   DateTime   @default(now())
+  expiresAt   DateTime?
+  caregiver   User       @relation("CaregiverLink_caregiverIdToUser", fields: [caregiverId], references: [id])
+  patient     User       @relation("CaregiverLink_patientIdToUser", fields: [patientId], references: [id])
+
+  @@unique([caregiverId, patientId])
+}
+
+model DietEntry {
+  id          String      @id @default(uuid())
+  userId      String
+  meal        String
+  mealType    MealType
+  purineLevel PurineLevel
+  riskScore   Float?
+  aiAnalysis  String?
+  date        DateTime
+  createdAt   DateTime    @default(now())
+  deletedAt   DateTime?
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+}
+
+model LabResult {
+  id            String   @id @default(uuid())
+  userId        String
+  date          DateTime
+  uricAcidLevel Float
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+}
+
+model SymptomEntry {
+  id          String   @id @default(uuid())
+  userId      String
+  date        DateTime
+  symptomType String
+  severity    Int
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+}
+
+model TreatmentEntry {
+  id            String        @id @default(uuid())
+  userId        String
+  date          DateTime
+  type          TreatmentType
+  uricAcidLevel Float?
+  painScore     Int?
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+}
+
+model User {
+  id             String           @id @default(uuid())
+  email          String           @unique
+  passwordHash   String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  role           UserRole         @default(PATIENT)
+  caregiverLinks CaregiverLink[]  @relation("CaregiverLink_caregiverIdToUser")
+  patientLinks   CaregiverLink[]  @relation("CaregiverLink_patientIdToUser")
+  dietEntries    DietEntry[]
+  labResults     LabResult[]
+  symptomEntries SymptomEntry[]
+  treatments     TreatmentEntry[]
+}
+
+enum LinkStatus {
+  PENDING
+  ACTIVE
+  REVOKED
 }
 
 enum MealType {
@@ -30,99 +113,13 @@ enum PurineLevel {
   HIGH
 }
 
-enum LinkStatus {
-  PENDING
-  ACTIVE
-  REVOKED
+enum TreatmentType {
+  INFUSION
+  MEDICATION
+  CLINIC_VISIT
 }
 
 enum UserRole {
   PATIENT
   CAREGIVER
-  ADVISOR
-}
-
-model User {
-  id             String           @id @default(cuid())
-  email          String           @unique
-  passwordHash   String
-  role           UserRole         @default(PATIENT)
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  treatments     TreatmentEntry[]
-  labs           LabResult[]
-  symptoms       SymptomEntry[]
-  dietEntries    DietEntry[]
-  caregiverLinks CaregiverLink[]  @relation("CaregiverLinks")
-  patientLinks   CaregiverLink[]  @relation("PatientLinks")
-}
-
-model LabResult {
-  id            String   @id @default(cuid())
-  userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  date          DateTime
-  uricAcidLevel Float    // mg/dL; required for lab entries
-  notes         String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  @@index([userId, date])
-}
-
-model SymptomEntry {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  date        DateTime
-  symptomType String
-  severity    Int      // 1–10
-  notes       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@index([userId, date])
-}
-
-model TreatmentEntry {
-  id            String        @id @default(cuid())
-  userId        String
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  date          DateTime
-  type          TreatmentType
-  uricAcidLevel Float?        // mg/dL; optional — not every session includes a lab draw
-  painScore     Int?          // 0–10; optional
-  notes         String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-
-  @@index([userId, date])
-}
-
-model DietEntry {
-  id          String      @id @default(cuid())
-  userId      String
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  meal        String
-  mealType    MealType
-  purineLevel PurineLevel
-  riskScore   Float?
-  aiAnalysis  String?     @db.Text
-  date        DateTime
-  createdAt   DateTime    @default(now())
-  deletedAt   DateTime?
-
-  @@index([userId, date])
-}
-
-model CaregiverLink {
-  id          String     @id @default(cuid())
-  caregiverId String
-  caregiver   User       @relation("CaregiverLinks", fields: [caregiverId], references: [id])
-  patientId   String
-  patient     User       @relation("PatientLinks", fields: [patientId], references: [id])
-  status      LinkStatus @default(PENDING)
-  createdAt   DateTime   @default(now())
-
-  @@unique([caregiverId, patientId])
 }

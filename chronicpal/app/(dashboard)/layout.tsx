@@ -15,6 +15,7 @@ const NAV_LINKS = [
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
   if (!session) redirect('/login');
+  if (session.user.role === 'CAREGIVER') redirect('/caregiver/dashboard');
 
   return (
     <div className="min-h-screen bg-gray-50">

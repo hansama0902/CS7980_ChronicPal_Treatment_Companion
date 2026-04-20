@@ -14,7 +14,7 @@ test.describe('Auth pages', () => {
     await page.goto('/login');
     await expect(page.getByRole('heading', { name: 'ChronicPal' })).toBeVisible();
     await expect(page.getByLabel('Email')).toBeVisible();
-    await expect(page.getByLabel('Password')).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Password' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Log In' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Create Account' })).toBeVisible();
   });
@@ -23,7 +23,7 @@ test.describe('Auth pages', () => {
     await page.goto('/register');
     await expect(page.getByRole('heading', { name: 'ChronicPal' })).toBeVisible();
     await expect(page.getByLabel('Email')).toBeVisible();
-    await expect(page.getByLabel('Password')).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Password' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Create Account' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Log in' })).toBeVisible();
   });
@@ -39,7 +39,7 @@ test.describe('Auth pages', () => {
   test('shows error on invalid login credentials', async ({ page }) => {
     await page.goto('/login');
     await page.getByLabel('Email').fill('nonexistent@example.com');
-    await page.getByLabel('Password').fill('wrongpassword');
+    await page.getByRole('textbox', { name: 'Password' }).fill('wrongpassword');
     await page.getByRole('button', { name: 'Log In' }).click();
     await expect(page.getByText('Invalid email or password')).toBeVisible();
   });
@@ -49,7 +49,7 @@ test.describe('Auth flow', () => {
   test('register → auto-login → dashboard', async ({ page }) => {
     await page.goto('/register');
     await page.getByLabel('Email').fill(TEST_EMAIL);
-    await page.getByLabel('Password').fill(TEST_PASSWORD);
+    await page.getByRole('textbox', { name: 'Password' }).fill(TEST_PASSWORD);
     await page.getByRole('button', { name: 'Create Account' }).click();
 
     // After registration, the app either auto-logs in (→ /dashboard)
@@ -59,7 +59,7 @@ test.describe('Auth flow', () => {
     if (page.url().includes('/login')) {
       // Auto-login failed gracefully — complete the flow manually
       await page.getByLabel('Email').fill(TEST_EMAIL);
-      await page.getByLabel('Password').fill(TEST_PASSWORD);
+      await page.getByRole('textbox', { name: 'Password' }).fill(TEST_PASSWORD);
       await page.getByRole('button', { name: 'Log In' }).click();
       await expect(page).toHaveURL(/\/dashboard/, { timeout: 10_000 });
     }
@@ -77,7 +77,7 @@ test.describe('Auth flow', () => {
 
     await page.goto('/login');
     await page.getByLabel('Email').fill(TEST_EMAIL);
-    await page.getByLabel('Password').fill(TEST_PASSWORD);
+    await page.getByRole('textbox', { name: 'Password' }).fill(TEST_PASSWORD);
     await page.getByRole('button', { name: 'Log In' }).click();
 
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 10_000 });

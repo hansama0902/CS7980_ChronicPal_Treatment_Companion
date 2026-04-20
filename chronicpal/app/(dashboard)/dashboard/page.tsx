@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { URIC_ACID_TARGET_MGDL } from '@/lib/constants';
 import DashboardCharts from './DashboardCharts';
+import PendingCaregiverRequests from './PendingCaregiverRequests';
+import ActiveCaregiverLinks from './ActiveCaregiverLinks';
 
 const QUICK_ACTIONS = [
   {
@@ -57,6 +59,24 @@ export default async function DashboardPage() {
   const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
   const sixMonthsAgo = new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000);
+
+  const now2 = new Date();
+  const [pendingLinks, activeLinks] = await Promise.all([
+    prisma.caregiverLink.findMany({
+      where: {
+        patientId: userId,
+        status: 'PENDING',
+        OR: [{ expiresAt: null }, { expiresAt: { gt: now2 } }],
+      },
+      include: { caregiver: { select: { id: true, email: true } } },
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.caregiverLink.findMany({
+      where: { patientId: userId, status: 'ACTIVE' },
+      include: { caregiver: { select: { id: true, email: true } } },
+      orderBy: { createdAt: 'desc' },
+    }),
+  ]);
 
   const [nextTreatment, recentLabs, recentSymptoms, dietEntries, labTrend, painHistory] =
     await Promise.all([
@@ -163,6 +183,22 @@ export default async function DashboardPage() {
         <h1 className="text-3xl font-bold text-gray-900">Patient Dashboard</h1>
         <p className="text-gray-500 mt-1">Welcome back, here&apos;s your health overview</p>
       </div>
+
+      <PendingCaregiverRequests
+        initialLinks={pendingLinks.map((l) => ({
+          id: l.id,
+          caregiverEmail: l.caregiver.email,
+          requestedAt: l.createdAt.toISOString(),
+        }))}
+      />
+
+      <ActiveCaregiverLinks
+        initialLinks={activeLinks.map((l) => ({
+          id: l.id,
+          caregiverEmail: l.caregiver.email,
+          linkedSince: l.createdAt.toISOString(),
+        }))}
+      />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
