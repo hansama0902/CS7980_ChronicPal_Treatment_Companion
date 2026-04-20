@@ -2,7 +2,51 @@ import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
+import { URIC_ACID_TARGET_MGDL } from '@/lib/constants';
 import DashboardCharts from './DashboardCharts';
+
+const QUICK_ACTIONS = [
+  {
+    icon: '💉',
+    title: 'Log Treatment',
+    subtitle: 'Record infusion session',
+    bg: 'bg-yellow-50',
+    color: 'text-yellow-700',
+    href: '/dashboard/treatments',
+  },
+  {
+    icon: '🧪',
+    title: 'Log Lab Result',
+    subtitle: 'Record uric acid & blood work',
+    bg: 'bg-blue-50',
+    color: 'text-blue-700',
+    href: '/dashboard/labs',
+  },
+  {
+    icon: '📝',
+    title: 'Log Symptoms',
+    subtitle: 'Track pain & symptoms',
+    bg: 'bg-purple-50',
+    color: 'text-purple-700',
+    href: '/dashboard/symptoms',
+  },
+  {
+    icon: '🍽',
+    title: 'Analyze Meal',
+    subtitle: 'AI purine risk assessment',
+    bg: 'bg-green-50',
+    color: 'text-green-700',
+    href: '/dashboard/diet',
+  },
+  {
+    icon: '📋',
+    title: 'Pre-Visit Summary',
+    subtitle: 'Generate doctor report',
+    bg: 'bg-orange-50',
+    color: 'text-orange-700',
+    href: '/dashboard/summary',
+  },
+];
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -88,13 +132,42 @@ export default async function DashboardPage() {
     severity: s.severity,
   }));
 
+  // Derived display values
+  const formattedDate = now.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+  const daysAway =
+    nextTreatment !== null
+      ? Math.ceil((nextTreatment.date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+      : null;
+  const uricAcidDiff =
+    latestUricAcid !== null && prevUricAcid !== null
+      ? Math.abs(latestUricAcid - prevUricAcid).toFixed(1)
+      : null;
+  const uricAcidColorClass =
+    latestUricAcid !== null
+      ? latestUricAcid < URIC_ACID_TARGET_MGDL
+        ? 'text-green-600'
+        : 'text-red-600'
+      : '';
+  const painLabel =
+    avgPain === null ? '' : avgPain <= 3 ? 'Low' : avgPain <= 6 ? 'Moderate' : 'Severe';
+
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold text-gray-900">Welcome back, {session?.user?.email}</h1>
+      {/* Page Title */}
+      <div>
+        <p className="text-sm text-gray-400 mb-1">{formattedDate}</p>
+        <h1 className="text-3xl font-bold text-gray-900">Patient Dashboard</h1>
+        <p className="text-gray-500 mt-1">Welcome back, here&apos;s your health overview</p>
+      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          title="Next Treatment"
+          label="Next Treatment"
           value={
             nextTreatment
               ? nextTreatment.date.toLocaleDateString('en-US', {
@@ -104,50 +177,59 @@ export default async function DashboardPage() {
                 })
               : 'Not scheduled'
           }
-          sub={nextTreatment?.type ?? ''}
-        />
-        <StatCard
-          title="Latest Uric Acid"
-          value={latestUricAcid !== null ? `${latestUricAcid} mg/dL` : 'No data'}
-          badge={uricTrend ?? undefined}
-          badgeColor={
-            uricTrend === '↑'
-              ? 'text-red-500'
-              : uricTrend === '↓'
-                ? 'text-green-500'
-                : 'text-gray-400'
+          subtitle={
+            nextTreatment && daysAway !== null
+              ? `${nextTreatment.type} — ${daysAway} day${daysAway === 1 ? '' : 's'} away`
+              : undefined
           }
         />
         <StatCard
-          title="7-Day Avg Pain"
-          value={avgPain !== null ? avgPain.toFixed(1) : 'No data'}
-          sub={avgPain !== null ? '/ 10' : '(last 7 days)'}
-          valueClass={painColorClass}
+          label="Latest Uric Acid"
+          value={latestUricAcid !== null ? `${latestUricAcid} mg/dL` : 'No data'}
+          valueClass={uricAcidColorClass}
+          subtitle={
+            uricAcidDiff !== null && uricTrend !== null
+              ? `${uricTrend} ${uricAcidDiff} from last test (target < ${URIC_ACID_TARGET_MGDL})`
+              : `Target < ${URIC_ACID_TARGET_MGDL} mg/dL`
+          }
         />
         <StatCard
-          title="Diet Compliance"
+          label="Avg Pain Score (7-day)"
+          value={avgPain !== null ? `${avgPain.toFixed(1)} / 10` : 'No data'}
+          valueClass={painColorClass}
+          subtitle={
+            avgPain !== null
+              ? `${painLabel} — based on ${recentSymptoms.length} entr${recentSymptoms.length === 1 ? 'y' : 'ies'}`
+              : '(last 7 days)'
+          }
+        />
+        <StatCard
+          label="Diet Compliance"
           value={dietCompliance !== null ? `${dietCompliance}%` : 'No data'}
-          sub={dietEntries.length > 0 ? `${dietEntries.length} entries (7 days)` : '(last 7 days)'}
+          valueClass={dietCompliance !== null ? 'text-green-600' : ''}
+          subtitle={
+            dietEntries.length > 0
+              ? `Low-purine meals this week (${dietEntries.length} entries)`
+              : '(last 7 days)'
+          }
         />
       </div>
 
       <DashboardCharts labData={labChartData} painData={painChartData} />
 
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h2 className="text-base font-semibold text-gray-800 mb-4">Quick Actions</h2>
-        <div className="flex flex-wrap gap-3">
-          {[
-            { label: 'Log Treatment', href: '/dashboard/treatments' },
-            { label: 'Log Lab', href: '/dashboard/labs' },
-            { label: 'Analyze Meal', href: '/dashboard/diet' },
-            { label: 'Generate Summary', href: '/dashboard/summary' },
-          ].map(({ label, href }) => (
+      {/* Quick Actions */}
+      <div className="bg-white rounded-xl shadow-sm p-6">
+        <h2 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {QUICK_ACTIONS.map(({ icon, title, subtitle, bg, color, href }) => (
             <Link
               key={href}
               href={href}
-              className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+              className={`${bg} rounded-xl p-4 flex flex-col gap-2 hover:shadow-md transition-shadow`}
             >
-              {label}
+              <span className="text-2xl">{icon}</span>
+              <span className={`font-bold text-sm ${color}`}>{title}</span>
+              <span className="text-xs text-gray-500">{subtitle}</span>
             </Link>
           ))}
         </div>
@@ -157,28 +239,21 @@ export default async function DashboardPage() {
 }
 
 function StatCard({
-  title,
+  label,
   value,
-  sub,
-  badge,
-  badgeColor,
+  subtitle,
   valueClass,
 }: {
-  title: string;
+  label: string;
   value: string;
-  sub?: string;
-  badge?: string;
-  badgeColor?: string;
+  subtitle?: string;
   valueClass?: string;
 }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-5">
-      <p className="text-sm text-gray-500 mb-1">{title}</p>
-      <div className="flex items-baseline gap-1">
-        <span className={`text-xl font-semibold text-gray-900 ${valueClass ?? ''}`}>{value}</span>
-        {badge && <span className={`text-lg font-bold ${badgeColor ?? ''}`}>{badge}</span>}
-      </div>
-      {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
+    <div className="bg-white rounded-xl shadow-sm p-6">
+      <p className="text-sm text-gray-500 mb-2">{label}</p>
+      <p className={`text-2xl font-bold text-gray-900 ${valueClass ?? ''}`}>{value}</p>
+      {subtitle && <p className="text-sm text-gray-500 mt-2">{subtitle}</p>}
     </div>
   );
 }
