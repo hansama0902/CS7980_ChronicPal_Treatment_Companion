@@ -31,7 +31,7 @@ export default async function DashboardPage() {
         select: { severity: true },
       }),
       prisma.dietEntry.findMany({
-        where: { userId, date: { gte: thirtyDaysAgo } },
+        where: { userId, date: { gte: sevenDaysAgo }, deletedAt: null },
         select: { purineLevel: true },
       }),
       prisma.labResult.findMany({
@@ -127,7 +127,7 @@ export default async function DashboardPage() {
         <StatCard
           title="Diet Compliance"
           value={dietCompliance !== null ? `${dietCompliance}%` : 'No data'}
-          sub={dietEntries.length > 0 ? `${dietEntries.length} entries` : '(last 30 days)'}
+          sub={dietEntries.length > 0 ? `${dietEntries.length} entries (7 days)` : '(last 7 days)'}
         />
       </div>
 

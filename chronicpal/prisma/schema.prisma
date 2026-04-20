@@ -110,6 +110,7 @@ model DietEntry {
   aiAnalysis  String?     @db.Text
   date        DateTime
   createdAt   DateTime    @default(now())
+  deletedAt   DateTime?
 
   @@index([userId, date])
 }

@@ -81,7 +81,10 @@ describe('getDietEntries', () => {
     mockPrisma.dietEntry.findMany.mockResolvedValue([mockRecord]);
     const result = await getDietEntries(USER_ID, {});
     expect(mockPrisma.dietEntry.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { userId: USER_ID }, orderBy: { date: 'desc' } }),
+      expect.objectContaining({
+        where: { userId: USER_ID, deletedAt: null },
+        orderBy: { date: 'desc' },
+      }),
     );
     expect(result).toHaveLength(1);
   });
