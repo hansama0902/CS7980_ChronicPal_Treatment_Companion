@@ -24,18 +24,21 @@ Always remind the user to commit the red-phase tests before implementing.
 ## What to test for each layer
 
 ### Validators (`chronicpal/validators/*.ts`)
+
 - Valid input → `success: true`, correct parsed shape
 - Missing required fields → `success: false`, correct `.issues[0].message`
 - Out-of-range values → appropriate error message
 - Edge cases: empty string, null, boundary values
 
 ### Services (`chronicpal/services/*.ts`)
+
 - Mock Prisma using `vi.mock('@/lib/prisma')`
 - Happy path: correct Prisma call args, correct return shape
 - Not-found: returns `null` or throws expected error
 - DB error: propagates without leaking PHI in error message
 
 ### Route Handlers (`chronicpal/app/api/**/*.ts`)
+
 - Mock `auth()` from `@/auth` for session control
 - 401 when unauthenticated
 - 400 on invalid input (Zod rejection)
@@ -43,6 +46,7 @@ Always remind the user to commit the red-phase tests before implementing.
 - 404 / 403 for ownership checks
 
 ### E2E (Playwright)
+
 - Full user journey: login → perform action → verify result
 - Auth redirect: unauthenticated user sent to `/login`
 - Form validation visible in UI

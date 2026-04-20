@@ -268,8 +268,7 @@ export default function TreatmentLoggingClient({ history }: { history: Treatment
                 )}
                 {record.uricAcidLevel !== null && (
                   <p className="text-sm text-gray-600 mb-1">
-                    Uric Acid:{' '}
-                    <span className="font-medium">{record.uricAcidLevel} mg/dL</span>
+                    Uric Acid: <span className="font-medium">{record.uricAcidLevel} mg/dL</span>
                   </p>
                 )}
                 {record.notes && (

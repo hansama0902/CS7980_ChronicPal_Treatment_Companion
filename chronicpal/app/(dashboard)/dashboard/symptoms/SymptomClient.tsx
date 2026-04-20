@@ -36,7 +36,11 @@ function getSeverityLabel(severity: number): string {
   return 'Severe';
 }
 
-export default function SymptomClient({ history: initialHistory }: { history: SymptomHistoryEntry[] }) {
+export default function SymptomClient({
+  history: initialHistory,
+}: {
+  history: SymptomHistoryEntry[];
+}) {
   const [history, setHistory] = useState(initialHistory);
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -225,7 +229,10 @@ export default function SymptomClient({ history: initialHistory }: { history: Sy
               <div className="flex gap-2">
                 <button
                   type="button"
-                  onClick={() => { resetForm(); setShowForm(false); }}
+                  onClick={() => {
+                    resetForm();
+                    setShowForm(false);
+                  }}
                   disabled={isSubmitting}
                   className="flex-1 px-4 py-2 rounded-lg border border-gray-300 text-gray-600 text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >

@@ -22,11 +22,7 @@ function painScoreClass(score: number): string {
   return 'text-red-600';
 }
 
-export default async function TreatmentDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function TreatmentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const session = await auth();
   const userId = session?.user?.id;
