@@ -36,12 +36,12 @@ vi.mock('@/lib/routeAuth', async () => {
   };
 });
 
-vi.mock('@/services/aiService', () => ({
+vi.mock('@/services/dietAnalysisService', () => ({
   analyzeDiet: vi.fn(),
 }));
 
 import { NextRequest as NR } from 'next/server';
-import { analyzeDiet } from '@/services/aiService';
+import { analyzeDiet } from '@/services/dietAnalysisService';
 import { POST } from '@/app/api/diet/analyze/route';
 
 const mockAnalyze = analyzeDiet as ReturnType<typeof vi.fn>;
@@ -84,7 +84,7 @@ describe('POST /api/diet/analyze', () => {
       body: JSON.stringify({ meal: 'Chicken breast', mealType: 'LUNCH', date: NOW }),
     });
     await POST(req, { params: Promise.resolve({}) });
-    expect(mockAnalyze).toHaveBeenCalledWith('test-user-id', 'Chicken breast', 'LUNCH', NOW);
+    expect(mockAnalyze).toHaveBeenCalledWith('test-user-id', 'Chicken breast', 'LUNCH', NOW, undefined, undefined);
   });
 
   it('returns 400 and skips service when meal is missing', async () => {
