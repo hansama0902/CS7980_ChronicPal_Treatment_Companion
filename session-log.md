@@ -147,13 +147,13 @@ dirs=(…)
 
 ⏺ Write(ChronicPal-backend/.gitignore)
 ⎿ Wrote 8 lines to ChronicPal-backend/.gitignore
-node_modules/
+node*modules/
 dist/
 .env
-_.env.local
+*.env.local
 coverage/
-.nyc_output/
-prisma/migrations/_.sql
+.nyc*output/
+prisma/migrations/*.sql
 \*.log
 
 ⏺ Let me verify the final structure:

@@ -30,6 +30,7 @@
 ## Features
 
 ### Patient Dashboard
+
 - **Treatment Logging** — Log infusion sessions, medications, uric acid levels (mg/dL), and pain scores (0–10) with trend charts over configurable time windows (1mo / 3mo / 6mo / 1yr)
 - **Lab Tracking** — Record and visualize lab results with historical trend analysis
 - **Symptom Monitoring** — Track daily symptom entries and spot flare-up patterns over time
@@ -37,6 +38,7 @@
 - **Pre-Visit Summary** — One-click AI-generated doctor report covering lab trends, symptom trajectory, diet compliance, and flagged concerns
 
 ### Caregiver Dashboard
+
 - Link via share code for read-only access to a patient's treatment adherence and diet compliance
 - No separate caregiver account required — link-based access with role enforcement at the DB level
 
@@ -44,17 +46,17 @@
 
 ## Tech Stack
 
-| Layer | Choice |
-|-------|--------|
-| Framework | Next.js 16 (App Router), React 19, TypeScript 5 |
-| Styling | Tailwind CSS 4, PostCSS |
-| Auth | NextAuth v5 (Credentials provider, JWT in httpOnly cookies) |
-| Database | PostgreSQL (Supabase), Prisma ORM 6 |
-| AI | Anthropic Claude API (`claude-sonnet-4-5`) + Google Gemini 2.5 Flash — server-side only |
-| Logging | Winston 3 (structured, PHI-safe field allowlist) |
-| Testing | Vitest 3 + React Testing Library + Playwright; coverage ≥ 70% |
-| Tooling | ESLint, Prettier (2-space, single quotes, trailing commas), Husky |
-| Deployment | Vercel (preview on PR, production on merge to main) |
+| Layer      | Choice                                                                                  |
+| ---------- | --------------------------------------------------------------------------------------- |
+| Framework  | Next.js 16 (App Router), React 19, TypeScript 5                                         |
+| Styling    | Tailwind CSS 4, PostCSS                                                                 |
+| Auth       | NextAuth v5 (Credentials provider, JWT in httpOnly cookies)                             |
+| Database   | PostgreSQL (Supabase), Prisma ORM 6                                                     |
+| AI         | Anthropic Claude API (`claude-sonnet-4-5`) + Google Gemini 2.5 Flash — server-side only |
+| Logging    | Winston 3 (structured, PHI-safe field allowlist)                                        |
+| Testing    | Vitest 3 + React Testing Library + Playwright; coverage ≥ 70%                           |
+| Tooling    | ESLint, Prettier (2-space, single quotes, trailing commas), Husky                       |
+| Deployment | Vercel (preview on PR, production on merge to main)                                     |
 
 ---
 
@@ -172,13 +174,13 @@ npm run dev
 
 ### Environment Variables
 
-| Variable | Description |
-|----------|-------------|
-| `DATABASE_URL` | PostgreSQL connection string (Supabase) |
-| `AUTH_SECRET` | NextAuth secret (≥ 32 chars) |
-| `ANTHROPIC_API_KEY` | Anthropic Claude API key |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | Google Gemini API key |
-| `NEXTAUTH_URL` | App base URL (e.g., `http://localhost:3000`) |
+| Variable                       | Description                                  |
+| ------------------------------ | -------------------------------------------- |
+| `DATABASE_URL`                 | PostgreSQL connection string (Supabase)      |
+| `AUTH_SECRET`                  | NextAuth secret (≥ 32 chars)                 |
+| `ANTHROPIC_API_KEY`            | Anthropic Claude API key                     |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | Google Gemini API key                        |
+| `NEXTAUTH_URL`                 | App base URL (e.g., `http://localhost:3000`) |
 
 ### Common Commands
 
@@ -202,21 +204,21 @@ npx prisma studio         # DB GUI
 
 All endpoints are Next.js Route Handlers under `app/api/`. Every protected endpoint is wrapped with `withAuth()` from `lib/routeAuth.ts`. All inputs are validated with Zod before reaching the database.
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| POST | `/api/auth/register` | Public | User registration |
-| POST | `/api/auth/[...nextauth]` | Public | NextAuth sign-in / sign-out |
-| GET / POST | `/api/treatments` | Patient | List / create treatment entries |
-| PUT / DELETE | `/api/treatments/[id]` | Patient | Update / delete treatment entry |
-| GET / POST | `/api/labs` | Patient | List / log lab results |
-| DELETE | `/api/labs/[id]` | Patient | Delete lab result |
-| GET / POST | `/api/symptoms` | Patient | List / log symptom entries |
-| DELETE | `/api/symptoms/[id]` | Patient | Delete symptom entry |
-| GET / POST | `/api/diet` | Patient | List / log meal with AI analysis |
-| POST | `/api/diet/analyze` | Patient | AI purine-risk analysis (Claude) |
-| GET | `/api/summary` | Patient | Generate AI pre-visit summary |
-| POST | `/api/caregiver/link` | Patient | Generate caregiver share code |
-| GET | `/api/patient/links` | Patient | List active caregiver links |
+| Method       | Path                      | Auth    | Description                      |
+| ------------ | ------------------------- | ------- | -------------------------------- |
+| POST         | `/api/auth/register`      | Public  | User registration                |
+| POST         | `/api/auth/[...nextauth]` | Public  | NextAuth sign-in / sign-out      |
+| GET / POST   | `/api/treatments`         | Patient | List / create treatment entries  |
+| PUT / DELETE | `/api/treatments/[id]`    | Patient | Update / delete treatment entry  |
+| GET / POST   | `/api/labs`               | Patient | List / log lab results           |
+| DELETE       | `/api/labs/[id]`          | Patient | Delete lab result                |
+| GET / POST   | `/api/symptoms`           | Patient | List / log symptom entries       |
+| DELETE       | `/api/symptoms/[id]`      | Patient | Delete symptom entry             |
+| GET / POST   | `/api/diet`               | Patient | List / log meal with AI analysis |
+| POST         | `/api/diet/analyze`       | Patient | AI purine-risk analysis (Claude) |
+| GET          | `/api/summary`            | Patient | Generate AI pre-visit summary    |
+| POST         | `/api/caregiver/link`     | Patient | Generate caregiver share code    |
+| GET          | `/api/patient/links`      | Patient | List active caregiver links      |
 
 ---
 
@@ -227,6 +229,7 @@ This project demonstrates all required Claude Code concepts from CS 7980.
 ### CLAUDE.md & Memory
 
 `CLAUDE.md` at the repo root uses `@import` for modular organization:
+
 - `@import docs/PRD.md` — Product requirements & user stories
 - `@import docs/ADRs.md` — Architecture Decision Records
 - `@import docs/domain-glossary.md` — Domain terminology
@@ -237,14 +240,14 @@ CLAUDE.md evolution is visible in git history — it was updated across 4+ commi
 
 Located in `.claude/skills/`:
 
-| Skill | Version | Description |
-|-------|---------|-------------|
-| `/add-feature` | v2 | Scaffold backend feature end-to-end: Prisma schema → Zod validator → service → Route Handler → Vitest tests. v2 added Step 0 to block features that reference missing Prisma models. |
-| `/review` | v2 | ChronicPal-specific code review: PHI safety, auth patterns, AI boundaries, DB access. v2 added REST design checks (Category 9). |
-| `/commit-to-branch` | v1 | Git workflow helper — stage, commit, and push to feature branch. |
-| `/explain-code` | v1 | Code explanation with visual diagrams and analogies. |
-| `/explain-skill` | v1 | Documents a skill's behavior and options. |
-| `/update-repo` | v1 | Pull latest main and rebase current branch. |
+| Skill               | Version | Description                                                                                                                                                                          |
+| ------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `/add-feature`      | v2      | Scaffold backend feature end-to-end: Prisma schema → Zod validator → service → Route Handler → Vitest tests. v2 added Step 0 to block features that reference missing Prisma models. |
+| `/review`           | v2      | ChronicPal-specific code review: PHI safety, auth patterns, AI boundaries, DB access. v2 added REST design checks (Category 9).                                                      |
+| `/commit-to-branch` | v1      | Git workflow helper — stage, commit, and push to feature branch.                                                                                                                     |
+| `/explain-code`     | v1      | Code explanation with visual diagrams and analogies.                                                                                                                                 |
+| `/explain-skill`    | v1      | Documents a skill's behavior and options.                                                                                                                                            |
+| `/update-repo`      | v1      | Pull latest main and rebase current branch.                                                                                                                                          |
 
 ### Hooks (2)
 
@@ -259,8 +262,8 @@ Additionally, a Husky **pre-commit hook** runs `gitleaks protect --staged` to bl
 
 Configured in `.mcp.json`:
 
-| Server | Purpose |
-|--------|---------|
+| Server             | Purpose                                                                                |
+| ------------------ | -------------------------------------------------------------------------------------- |
 | `figma-remote-mcp` | Design collaboration — read Figma component specs directly inside Claude Code sessions |
 
 Usage evidence: `ScreenShot/mcp 1.png` through `mcp 7.png` (April 17) showing MCP server startup and Figma integration in action.
@@ -269,10 +272,10 @@ Usage evidence: `ScreenShot/mcp 1.png` through `mcp 7.png` (April 17) showing MC
 
 Located in `.claude/agents/`:
 
-| Agent | Invocation | Purpose |
-|-------|------------|---------|
+| Agent               | Invocation                                 | Purpose                                                                                                   |
+| ------------------- | ------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
 | `security-reviewer` | `security-reviewer: review <file or diff>` | Reviews code for P0/P1/P2 security violations — PHI leakage, auth patterns, injection risks, OWASP Top 10 |
-| `test-writer` | `test-writer: write tests for <feature>` | Writes Vitest unit/integration tests and Playwright E2E tests following TDD red-green-refactor workflow |
+| `test-writer`       | `test-writer: write tests for <feature>`   | Writes Vitest unit/integration tests and Playwright E2E tests following TDD red-green-refactor workflow   |
 
 ### Parallel Development
 
@@ -288,6 +291,7 @@ feature/CP-7-CP-14-labs-dashboard  feature/cp-symptoms-treatment-logging
 ### Writer / Reviewer Pattern
 
 All PRs follow the writer/reviewer pattern:
+
 - One developer writes the feature (or uses Claude Code to scaffold it via `/add-feature`)
 - A second review pass uses `security-reviewer` agent and the CI `ai-review` job (Claude Code Action) with the C.L.E.A.R. framework
 - PRs include AI disclosure metadata: % AI-generated, tool used (Claude Code), human review applied
@@ -331,16 +335,16 @@ security ──────────────────────┤�
 ai-review (parallel) ──────────┘
 ```
 
-| Job | What it runs |
-|-----|--------------|
-| **lint** | ESLint + Prettier check |
-| **typecheck** | `tsc --noEmit` |
-| **unit-test** | Vitest + coverage threshold |
-| **security** | `npm audit --audit-level=high` · Gitleaks · Semgrep (`p/typescript`, `p/nodejs`, `p/owasp-top-ten`) |
-| **ai-review** | Claude Code Action — PHI safety, auth patterns, Zod validation, CLEAR framework |
-| **e2e** | Playwright on Chromium with real Postgres service container |
-| **deploy-preview** | Vercel preview deploy (PR only) |
-| **deploy-production** | Vercel production deploy (merge to `main` only) |
+| Job                   | What it runs                                                                                        |
+| --------------------- | --------------------------------------------------------------------------------------------------- |
+| **lint**              | ESLint + Prettier check                                                                             |
+| **typecheck**         | `tsc --noEmit`                                                                                      |
+| **unit-test**         | Vitest + coverage threshold                                                                         |
+| **security**          | `npm audit --audit-level=high` · Gitleaks · Semgrep (`p/typescript`, `p/nodejs`, `p/owasp-top-ten`) |
+| **ai-review**         | Claude Code Action — PHI safety, auth patterns, Zod validation, CLEAR framework                     |
+| **e2e**               | Playwright on Chromium with real Postgres service container                                         |
+| **deploy-preview**    | Vercel preview deploy (PR only)                                                                     |
+| **deploy-production** | Vercel production deploy (merge to `main` only)                                                     |
 
 ---
 
@@ -348,14 +352,15 @@ ai-review (parallel) ──────────┘
 
 This project implements a multi-layer security pipeline aligned with OWASP Top 10 (2021):
 
-| Gate | Tool | When |
-|------|------|------|
-| Secrets detection | Gitleaks (`protect --staged`) | Pre-commit |
-| Dependency audit | `npm audit --audit-level=high` | CI |
-| SAST | Semgrep `p/owasp-top-ten` | CI |
-| AI security review | Claude Code Action + `security-reviewer` agent | CI + PR |
+| Gate               | Tool                                           | When       |
+| ------------------ | ---------------------------------------------- | ---------- |
+| Secrets detection  | Gitleaks (`protect --staged`)                  | Pre-commit |
+| Dependency audit   | `npm audit --audit-level=high`                 | CI         |
+| SAST               | Semgrep `p/owasp-top-ten`                      | CI         |
+| AI security review | Claude Code Action + `security-reviewer` agent | CI + PR    |
 
 **Key mitigations:**
+
 - **PHI Safety** — Winston structured logger with explicit field allowlist; health data never appears in logs, error messages, or client responses
 - **Auth** — NextAuth v5 JWT in httpOnly cookies; no localStorage tokens; bcryptjs password hashing
 - **Injection** — Prisma ORM parameterized queries; all inputs validated with Zod before DB access
@@ -365,24 +370,24 @@ This project implements a multi-layer security pipeline aligned with OWASP Top 1
 
 ## Architecture Decisions
 
-| ADR | Decision | Rationale |
-|-----|----------|-----------|
-| ADR-2 | Prisma over raw SQL | Type-safe access, auto-generated migrations, clear schema file |
-| ADR-3 | JWT auth (httpOnly cookies) | Stateless, no sticky sessions; tokens never in localStorage |
-| ADR-4 | Claude API for AI features | Best-in-class for clinical narrative generation and dietary risk analysis |
-| ADR-5 | Supabase as managed Postgres | Managed connection pooling; Prisma as the sole ORM layer (no Supabase SDK) |
-| ADR-6 | No PHI in logs | Health data must never appear in `console.log`, error messages, or third-party services |
+| ADR   | Decision                     | Rationale                                                                               |
+| ----- | ---------------------------- | --------------------------------------------------------------------------------------- |
+| ADR-2 | Prisma over raw SQL          | Type-safe access, auto-generated migrations, clear schema file                          |
+| ADR-3 | JWT auth (httpOnly cookies)  | Stateless, no sticky sessions; tokens never in localStorage                             |
+| ADR-4 | Claude API for AI features   | Best-in-class for clinical narrative generation and dietary risk analysis               |
+| ADR-5 | Supabase as managed Postgres | Managed connection pooling; Prisma as the sole ORM layer (no Supabase SDK)              |
+| ADR-6 | No PHI in logs               | Health data must never appear in `console.log`, error messages, or third-party services |
 
 ---
 
 ## Project Deliverables
 
-| Deliverable | Link |
-|-------------|------|
-| Slide Deck | [Google Slides](https://docs.google.com/presentation/d/1bE2UHOsf4Y77ce3D_uPG-ac-M_0TN9Bu3LtzYe1b_kE/edit?usp=sharing) |
-| Demo Video | [YouTube](https://youtu.be/cQoulHRlD18) |
+| Deliverable         | Link                                                                                                                                                                                                                                       |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Slide Deck          | [Google Slides](https://docs.google.com/presentation/d/1bE2UHOsf4Y77ce3D_uPG-ac-M_0TN9Bu3LtzYe1b_kE/edit?usp=sharing)                                                                                                                      |
+| Demo Video          | [YouTube](https://youtu.be/cQoulHRlD18)                                                                                                                                                                                                    |
 | Technical Blog Post | [LinkedIn Article](https://www.linkedin.com/posts/shuhan-dong-aa2041233_how-claude-code-shipped-a-health-tech-app-ugcPost-7452546542517010432-BK7e?utm_source=share&utm_medium=member_desktop&rcm=ACoAADo0QNoBGrOlvQt-S7bs8ApRYL9oApcG-rk) |
-| Live Production App | [chronicpal.vercel.app](https://chronicpal.vercel.app) |
+| Live Production App | [chronicpal.vercel.app](https://chronicpal.vercel.app)                                                                                                                                                                                     |
 
 ---
 
