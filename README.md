@@ -14,6 +14,7 @@
 
 - [Features](#features)
 - [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
 - [API Reference](#api-reference)
@@ -54,6 +55,55 @@
 | Testing | Vitest 3 + React Testing Library + Playwright; coverage ≥ 70% |
 | Tooling | ESLint, Prettier (2-space, single quotes, trailing commas), Husky |
 | Deployment | Vercel (preview on PR, production on merge to main) |
+
+---
+
+## Architecture
+
+```mermaid
+graph TD
+    subgraph Client["Browser (Client)"]
+        UI["React 19 Components\n(App Router Pages)"]
+    end
+
+    subgraph Vercel["Vercel — Next.js 15 App Router"]
+        SC["Server Components\n& Server Actions"]
+        RH["Route Handlers\napp/api/**"]
+        MW["NextAuth v5\nMiddleware / withAuth()"]
+    end
+
+    subgraph Services["Service Layer  services/"]
+        AI["AiService\nClaude + Gemini"]
+        TS["TreatmentService"]
+        LS["LabService"]
+        SS["SymptomService"]
+        DS["DietService"]
+        SG["SummaryGenerator"]
+    end
+
+    subgraph Data["Data Layer"]
+        PR["Prisma ORM\nlib/prisma.ts"]
+        DB[(PostgreSQL\nSupabase)]
+    end
+
+    subgraph ExternalAI["External AI APIs"]
+        CL["Anthropic Claude API\nclaude-sonnet-4-5"]
+        GM["Google Gemini\n2.5 Flash"]
+    end
+
+    UI -->|"fetch / Server Action"| SC
+    UI -->|"REST calls"| RH
+    SC --> MW
+    RH --> MW
+    MW -->|"auth() session check"| SC
+    MW -->|"withAuth() guard"| RH
+    RH --> Services
+    SC --> Services
+    AI -->|"purine risk / summary"| CL
+    AI -->|"image analysis"| GM
+    TS & LS & SS & DS & SG --> PR
+    PR --> DB
+```
 
 ---
 
