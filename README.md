@@ -325,52 +325,14 @@ This project implements a multi-layer security pipeline aligned with OWASP Top 1
 
 ---
 
-## Individual Reflection — Shuhan Dong / 个人反思 — 董书涵
-
-### Project Deliverables / 项目交付物
+## Project Deliverables
 
 | Deliverable | Link |
 |-------------|------|
-| Slide Deck / 课程幻灯片 | [Google Slides](https://docs.google.com/presentation/d/1bE2UHOsf4Y77ce3D_uPG-ac-M_0TN9Bu3LtzYe1b_kE/edit?usp=sharing) |
-| Demo Video / 演示视频 | [YouTube](https://youtu.be/cQoulHRlD18) |
-| Technical Blog Post / 技术博客 | [LinkedIn Article](https://www.linkedin.com/posts/shuhan-dong-aa2041233_how-claude-code-shipped-a-health-tech-app-ugcPost-7452546542517010432-BK7e?utm_source=share&utm_medium=member_desktop&rcm=ACoAADo0QNoBGrOlvQt-S7bs8ApRYL9oApcG-rk) |
-| Live Production App / 线上产品 | [chronicpal.vercel.app](https://chronicpal.vercel.app) |
-
----
-
-### English
-
-Building ChronicPal has been one of the most technically and intellectually demanding experiences of my academic career. Coming into this course, I understood AI as a tool to accelerate routine coding tasks. What I did not anticipate was how deeply it would reshape the way I reason about software design, security, and the responsibilities that come with handling sensitive health data.
-
-The project set out to solve a real problem: patients undergoing recurring therapies like gout infusion treatment often struggle to recall months of lab trends, dietary choices, and symptom changes during a brief clinical appointment. ChronicPal bridges that gap by combining structured treatment logging, AI-powered diet risk analysis, and auto-generated pre-visit summaries into a single application. What sounds like a clean product vision, however, revealed its complexity at every layer of implementation.
-
-One of the most instructive challenges was architecting the AI layer responsibly. Early in the project, the temptation was to call the Claude API directly from the frontend for a faster development loop. Our ADR-4 decision — routing all AI calls exclusively through server-side Route Handlers — initially felt like unnecessary friction. It only made sense once we traced the full security surface: a client-side AI call would expose the API key in the browser, risk leaking PHI in request payloads, and bypass every server-side validation we had built. The discipline of writing that architectural decision record first, before writing a single line of AI integration code, forced us to think like engineers rather than just move fast. That habit — document the *why* before the *how* — is something I will carry into every future project.
-
-Working with PHI-safe logging under ADR-6 was similarly humbling. I had never before written a logger with an explicit field allowlist to prevent health values from appearing in error traces. Winston's structured logging model made the mechanism straightforward, but the mindset shift was the real lesson: the default assumption when handling health data must be "log nothing" rather than "log what seems safe." A single carelessly logged uric acid value in a cloud logging service would constitute a HIPAA-equivalent violation in a production context.
-
-On the AI-assisted coding side, I found Claude Code most valuable not for generating large code blocks, but for catching architectural drift early — flagging when a new component was about to make a direct database call or when a Zod validator was being skipped on a new endpoint. These are the kinds of reviews that a human reviewer might miss on a deadline. That said, I also learned that AI suggestions require the same scrutiny as any code review. In two instances, AI-suggested patterns conflicted with our established ADRs, and accepting them uncritically would have introduced security regressions.
-
-The caregiver dashboard and pre-visit summary features — the two highest-complexity user stories — taught me the most about the gap between prototype quality and production quality. Generating a coherent, medically-grounded natural-language summary from months of lab and diet data required careful prompt engineering, output validation, and graceful degradation when Claude returned incomplete results. There is no shortcut to that work.
-
-If I were to start over, I would allocate more time earlier to integration testing with a real database, rather than relying solely on unit tests with mocked Prisma calls. A mock that passes is not the same as a migration that survives production. That is perhaps the most durable lesson this project gave me.
-
----
-
-### 中文
-
-构建 ChronicPal 是我学术生涯中技术难度与思维挑战并存的一段经历。进入这门课程之前，我将 AI 理解为加速日常编码任务的工具。我没有预料到的是，它会如此深刻地重塑我对软件设计、安全以及处理敏感健康数据所承担责任的思考方式。
-
-这个项目旨在解决一个真实问题：接受定期输液治疗（如痛风治疗）的患者，往往难以在短暂的门诊时间内清晰回忆数月来的化验趋势、饮食选择和症状变化。ChronicPal 通过整合结构化治疗记录、AI 饮食风险分析和自动生成的就诊前摘要，弥合了这一信息缺口。然而，看似简洁的产品愿景，在实现的每一层都暴露出真实的复杂性。
-
-最具启发意义的挑战之一是如何负责任地设计 AI 层。项目早期，我曾有冲动直接从前端调用 Claude API 以加快开发迭代。我们在 ADR-4 中做出的决定——将所有 AI 调用严格路由至服务端的 Route Handler——最初让人觉得是不必要的阻碍。直到我们追溯完整的安全攻击面，才真正理解其意义：客户端的 AI 调用会在浏览器中暴露 API 密钥，增加请求负载中泄露 PHI 的风险，并绕过所有已构建的服务端验证。在写下任何 AI 集成代码之前，先记录架构决策的规范——先写"为什么"，再写"怎么做"——是我将带入未来所有项目的习惯。
-
-在 ADR-6 要求下实现 PHI 安全日志，同样让我深有感触。我此前从未为日志系统设计过显式字段白名单以防止健康数值出现在错误追踪中。Winston 的结构化日志模型让实现机制相对直观，但真正的收获是思维方式的转变：处理健康数据时，默认假设应该是"什么都不记录"，而不是"记录看起来安全的内容"。在生产环境中，一条不经意记录的尿酸值，就可能构成等同于 HIPAA 违规的事件。
-
-在 AI 辅助编码方面，我发现 Claude Code 最大的价值并不在于生成大段代码，而在于尽早识别架构偏移——当某个新组件即将直接访问数据库，或某个新接口在跳过 Zod 校验时，及时发出警示。这类问题在截止日期压力下很容易被人工审查者遗漏。但我也认识到，AI 的建议与其他代码审查意见一样需要严格审视。有两次，AI 给出的模式与我们已有的 ADR 存在冲突，若不加甄别地采纳，将引入安全漏洞。
-
-护理者看板和就诊前摘要——两个复杂度最高的用户故事——让我最深刻地体会到原型质量与生产质量之间的鸿沟。从数月的化验和饮食数据中生成连贯、有医学依据的自然语言摘要，需要精心的提示词工程、输出验证，以及在 Claude 返回不完整结果时的优雅降级处理。这些工作没有捷径可走。
-
-如果重来一次，我会在更早阶段投入更多精力进行基于真实数据库的集成测试，而不是单纯依赖 Prisma mock 的单元测试。一个通过了 mock 测试的用例，并不等同于一次在生产环境中存活下来的数据库迁移。这或许是这个项目留给我最深刻的教训。
+| Slide Deck | [Google Slides](https://docs.google.com/presentation/d/1bE2UHOsf4Y77ce3D_uPG-ac-M_0TN9Bu3LtzYe1b_kE/edit?usp=sharing) |
+| Demo Video | [YouTube](https://youtu.be/cQoulHRlD18) |
+| Technical Blog Post | [LinkedIn Article](https://www.linkedin.com/posts/shuhan-dong-aa2041233_how-claude-code-shipped-a-health-tech-app-ugcPost-7452546542517010432-BK7e?utm_source=share&utm_medium=member_desktop&rcm=ACoAADo0QNoBGrOlvQt-S7bs8ApRYL9oApcG-rk) |
+| Live Production App | [chronicpal.vercel.app](https://chronicpal.vercel.app) |
 
 ---
 
